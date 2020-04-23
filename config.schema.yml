@@ -12,6 +12,8 @@ properties:
     type: string
   poppunk_clusters:
     type: string
+  poppunk_db:
+    type: string
   
   sketch:
     type: object
@@ -34,4 +36,5 @@ required:
   - script_location
   - poppunk_rfile
   - poppunk_clusters
+  - poppunk_db
   - sketch

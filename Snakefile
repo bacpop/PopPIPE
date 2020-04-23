@@ -2,12 +2,13 @@ import pandas as pd
 from snakemake.utils import validate, min_version
 min_version("5.1.2")
 
-configfile: "config.yaml"
-validate(config, schema="config.schema.yaml")
+configfile: "config.yml"
+validate(config, schema="config.schema.yml")
 
 # table with sample, sequence, cluster
-samples = pd.read_table(config["poppunk_rfile"]).set_index("sample", drop=False)
-clusters = pd.read_table(config["poppunk_clusters"]).set_index("sample", drop=False)
+samples = pd.read_table(config["poppunk_rfile"], header=None, index_col=0)
+clusters = pd.read_table(config["poppunk_clusters"], sep=",",).set_index("Taxon", drop=False)
+cluster_names=pd.unique(clusters['Cluster'])
 # all or a subset?
 # ideally automatically update an existing analysis with new isolates
 # general, python script to generate a params.yaml? 
@@ -20,9 +21,10 @@ rule all:
 
 rule split_clusters:
     input:
-        "{cluster}"
+        config["poppunk_rfile"]
     output:
-        "clusters/{cluster}/rfile.txt")
+        "clusters/{cluster}/rfile.txt",
+        "clusters/{cluster}/ska_index.txt"
     script:
         "{config[script_loc]}/update_cluster_dirs.py" #TODO script to read PopPUNK results, create cluster dirs, add any new samples
 
@@ -30,8 +32,8 @@ rule split_clusters:
 # TODO write wrapper script which generates(/updates) input from a PopPUNK run
 rule sketchlib_dists:
     input:
-        database = config.poppunk_db,
-        rfile = "clusters/{cluster}/rfiles.txt"
+        database = config["poppunk_db"],
+        rfile = "clusters/{cluster}/rfile.txt"
     output:
         "clusters/{cluster}/dists.npy",
         "clusters/{cluster}/dists.pkl"
@@ -57,9 +59,9 @@ rule generate_nj:
 # ska for alignment
 rule ska_index:
     input:
-        assembly=lambda wildcards: samples.loc[wildcards.sample, "sample_fa"]
+        assembly=lambda wildcards: samples.loc[wildcards.sample]
     output:
-        "clusters/{cluster}/{sample}.ska"
+        "ska_index/{sample}.ska"
     conda:
         "envs/ska.yml"
     shell:
@@ -67,17 +69,26 @@ rule ska_index:
 
 rule ska_align:
     input:
-        ska="clusters/{cluster}/{sample}.ska"
+        ska=expand("ska_index/{sample}.ska", sample=clusters.index),
+        samples="clusters/{cluster}/ska_index.txt"
     output:
         "clusters/{cluster}/align.fa",
-        file_list = temp("clusters/{cluster}/samples.txt"),
-        flag_file = "output/cluster_summary.txt" #TODO remove this
     conda:
         "envs/ska.yml"
     shell:
-        "ls clusters/{cluster}/*.ska > {output.file_list}",
-        "ska align -v -o clusters/{cluster}/align -f {output.file_list}",
-        "touch {output.flag_file}"
+        "ska align -v -o clusters/{cluster}/align -f {input.samples}"
+
+#TODO remove this
+rule dummy_finish:
+    input:
+       expand("clusters/{cluster}/align.fa", cluster=cluster_names),
+       expand("clusters/{cluster}/njtree.nwk", cluster=cluster_names)
+    output:
+       "output/cluster_summary.txt"
+    shell:
+        "touch {output}"
+ 
+
 
 # first a rule which cats ska file names into new list
 # then run align using this file
@@ -102,51 +113,4 @@ rule generate_viz:
 # use microreact api
 rule make_microreact:
 
-rule bwa_map:
-    input:
-        "data/genome.fa",
-        "data/samples/{sample}.fastq"
-    output:
-        "mapped_reads/{sample}.bam"
-    shell:
-        "bwa mem {input} | samtools view -Sb - > {output}"
 
-
-rule samtools_sort:
-    input:
-        "mapped_reads/{sample}.bam"
-    output:
-        "sorted_reads/{sample}.bam"
-    shell:
-        "samtools sort -T sorted_reads/{wildcards.sample} "
-        "-O bam {input} > {output}"
-
-
-rule samtools_index:
-    input:
-        "sorted_reads/{sample}.bam"
-    output:
-        "sorted_reads/{sample}.bam.bai"
-    shell:
-        "samtools index {input}"
-
-
-rule bcftools_call:
-    input:
-        fa="data/genome.fa",
-        bam=expand("sorted_reads/{sample}.bam", sample=SAMPLES),
-        bai=expand("sorted_reads/{sample}.bam.bai", sample=SAMPLES)
-    output:
-        "calls/all.vcf"
-    shell:
-        "samtools mpileup -g -f {input.fa} {input.bam} | "
-        "bcftools call -mv - > {output}"
-
-
-rule plot_quals:
-    input:
-        "calls/all.vcf"
-    output:
-        "plots/quals.svg"
-    script:
-        "scripts/plot-quals.py"

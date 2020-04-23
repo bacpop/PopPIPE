@@ -1,7 +1,8 @@
 script_location: scripts
 
-poppunk_rfile: samples.tsv
-poppunk_clusters: units.tsv
+poppunk_rfile: rlist.txt
+poppunk_clusters: listeria_new/listeria_poppunk/listeria_db_new_clusters.csv
+poppunk_db: listeria_new/listeria.h5
 
 sketch:
   min_k: 15
