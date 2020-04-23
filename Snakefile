@@ -61,15 +61,15 @@ rule ska_index:
     input:
         assembly=lambda wildcards: samples.loc[wildcards.sample]
     output:
-        "ska_index/{sample}.ska"
+        "ska_index/{sample}.skf"
     conda:
         "envs/ska.yml"
     shell:
-        "ska fasta -o {output} {input.assembly}"
+        "ska fasta -o ska_index/{wildcards.sample} {input.assembly}"
 
 rule ska_align:
     input:
-        ska=expand("ska_index/{sample}.ska", sample=clusters.index),
+        ska=expand("ska_index/{sample}.skf", sample=clusters.index),
         samples="clusters/{cluster}/ska_index.txt"
     output:
         "clusters/{cluster}/align.fa",
