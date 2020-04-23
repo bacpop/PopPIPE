@@ -3,12 +3,11 @@ from snakemake.utils import validate, min_version
 min_version("5.1.2")
 
 configfile: "config.yaml"
-validate(config, schema="schemas/config.schema.yaml")
+validate(config, schema="config.schema.yaml")
 
 # table with sample, sequence, cluster
 samples = pd.read_table(config["poppunk_rfile"]).set_index("sample", drop=False)
 clusters = pd.read_table(config["poppunk_clusters"]).set_index("sample", drop=False)
-validate(samples, schema="schemas/samples.schema.yaml")
 # all or a subset?
 # ideally automatically update an existing analysis with new isolates
 # general, python script to generate a params.yaml? 
@@ -36,6 +35,8 @@ rule sketchlib_dists:
     output:
         "clusters/{cluster}/dists.npy",
         "clusters/{cluster}/dists.pkl"
+    conda:
+        "envs/sketch.yml"
     shell:
         "poppunk_sketch --query --ref-db {input.database} --query-db {input.database} --subset {input.rfile} "
         "--output clusters/{cluster}/dists --min-k {config[min_k]} --max-k {config[max_k]} --k-step {config[k_step]} "
@@ -44,12 +45,14 @@ rule sketchlib_dists:
 # rapidnj
 rule generate_nj:
     input:
-        "clusters/{cluster}/dists.npy",
-        "clusters/{cluster}/dists.pkl" 
+        npy="clusters/{cluster}/dists.npy",
+        pkl="clusters/{cluster}/dists.pkl" 
     output:
         "clusters/{cluster}/njtree.nwk"
+    conda:
+        "envs/nj.yml"
     script:
-        "{config[script_loc]}/run_rapidnj.py"  #TODO use function from PopPUNK
+        "{config[script_location]}/run_rapidnj.py"  #TODO use function from PopPUNK
 
 # ska for alignment
 rule ska_index:
@@ -57,10 +60,25 @@ rule ska_index:
         assembly=lambda wildcards: samples.loc[wildcards.sample, "sample_fa"]
     output:
         "clusters/{cluster}/{sample}.ska"
+    conda:
+        "envs/ska.yml"
     shell:
         "ska fasta -o {output} {input.assembly}"
 
 rule ska_align:
+    input:
+        ska="clusters/{cluster}/{sample}.ska"
+    output:
+        "clusters/{cluster}/align.fa",
+        file_list = temp("clusters/{cluster}/samples.txt"),
+        flag_file = "output/cluster_summary.txt" #TODO remove this
+    conda:
+        "envs/ska.yml"
+    shell:
+        "ls clusters/{cluster}/*.ska > {output.file_list}",
+        "ska align -v -o clusters/{cluster}/align -f {output.file_list}",
+        "touch {output.flag_file}"
+
 # first a rule which cats ska file names into new list
 # then run align using this file
 

@@ -1,0 +1,10 @@
+script_location: scripts
+
+poppunk_rfile: samples.tsv
+poppunk_clusters: units.tsv
+
+sketch:
+  min_k: 15
+  max_k: 29
+  k_step: 3
+  sketch_size: 10000

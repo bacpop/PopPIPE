@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+
+description: snakemake configuration file
+
+type: object
+
+properties:
+  script_location:
+    type: string
+  
+  poppunk_rfile:
+    type: string
+  poppunk_clusters:
+    type: string
+  
+  sketch:
+    type: object
+    properties:
+      min_k:
+        type: integer
+      max_k:
+        type: integer
+      k_step:
+        type: integer
+      sketch_size:
+        type: integer
+    required:
+      - min_k
+      - max_k
+      - k_step
+      - sketch_size
+
+required:
+  - script_location
+  - poppunk_rfile
+  - poppunk_clusters
+  - sketch

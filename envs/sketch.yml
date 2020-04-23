@@ -1,0 +1,4 @@
+channels:
+  - conda-forge
+dependencies:
+  - pp-sketchlib =1.3.0
