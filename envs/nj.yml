@@ -3,4 +3,6 @@ channels:
   - conda-forge
 dependencies:
   - python =3.7
+  - numpy =1.18
+  - dendropy =4.4.0
   - rapidnj =v2.3.2

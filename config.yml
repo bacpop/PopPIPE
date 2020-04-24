@@ -1,11 +1,13 @@
 script_location: scripts
 
 poppunk_rfile: rlist.txt
-poppunk_clusters: listeria_new/listeria_poppunk/listeria_db_new_clusters.csv
-poppunk_db: listeria_new/listeria.h5
+poppunk_clusters: listeria_clusters.csv
+poppunk_db: listeria
+
+min_cluster_size: 3
 
 sketch:
-  min_k: 15
+  min_k: 13
   max_k: 29
-  k_step: 3
+  k_step: 4
   sketch_size: 10000

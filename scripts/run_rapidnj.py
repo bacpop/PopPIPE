@@ -1,6 +1,8 @@
+import os, sys
 import numpy as np
 import subprocess
 import tempfile
+import dendropy
 
 def update_distance_matrices(refList, distMat, queryList = None, query_ref_distMat = None,
                              query_query_distMat = None):
@@ -89,8 +91,8 @@ def update_distance_matrices(refList, distMat, queryList = None, query_ref_distM
     # return outputs
     return seqLabels, coreMat, accMat
 
-
-rlist, qlist, self = pickle.load(snakemake.input['pkl'])
+with open(snakemake.input['pkl'], 'rb') as pickle_file:
+    rlist, qlist, self = pickle.load(pickle_file)
 complete_distMat = np.load(snakemake.input['npy'])
 combined_seq, core_distMat, acc_distMat = update_distance_matrices(rlist, complete_distMat)
 
@@ -100,14 +102,14 @@ phylip_name = tmp_core.name
 tree_filename = tmp_tree.name
 
 with open(phylip_name, 'w') as pFile:
-    pFile.write(str(len(refList))+"\n")
-    for coreDist, ref in zip(coreMat, refList):
+    pFile.write(str(len(rlist))+"\n")
+    for coreDist, ref in zip(core_distMat, rlist):
         pFile.write(ref)
         pFile.write(' '+' '.join(map(str, coreDist)))
         pFile.write("\n")
 
 # construct tree
-rapidnj_cmd = rapidnj + " " + phylip_name + " -i pd -o t -x " + tree_filename + ".raw"
+rapidnj_cmd = "rapidnj " + phylip_name + " -i pd -o t -x " + tree_filename + ".raw"
 try:
     # run command
     subprocess.run(rapidnj_cmd, shell=True, check=True)
@@ -126,7 +128,7 @@ except subprocess.CalledProcessError as e:
 tree = dendropy.Tree.get(path=tree_filename, schema="newick")
 tree.reroot_at_midpoint(update_bipartitions=True, suppress_unifurcations=False)
 tree.reroot_at_midpoint(update_bipartitions=True, suppress_unifurcations=False)
-tree.write(path=snakemake.output,
+tree.write(path=str(snakemake.output),
             schema="newick",
             suppress_rooting=True,
             unquoted_underscores=True)

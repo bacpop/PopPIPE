@@ -14,6 +14,10 @@ properties:
     type: string
   poppunk_db:
     type: string
+
+  min_cluster_size:
+    type: integer
+    minimum: 3
   
   sketch:
     type: object
