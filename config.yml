@@ -6,12 +6,6 @@ poppunk_db: listeria
 
 min_cluster_size: 6
 
-sketch:
-  min_k: 13
-  max_k: 29
-  k_step: 4
-  sketch_size: 10000
-
 iqtree:
   enabled: true
   mode: full

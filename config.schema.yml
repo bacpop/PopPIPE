@@ -19,23 +19,6 @@ properties:
     type: integer
     minimum: 3
   
-  sketch:
-    type: object
-    properties:
-      min_k:
-        type: integer
-      max_k:
-        type: integer
-      k_step:
-        type: integer
-      sketch_size:
-        type: integer
-    required:
-      - min_k
-      - max_k
-      - k_step
-      - sketch_size
-  
   iqtree:
     type: object
     properties:
@@ -58,6 +41,7 @@ properties:
         type: string
       levels:
         type: integer
+        minimum: 1
     required:
       - script
       - levels
@@ -67,6 +51,5 @@ required:
   - poppunk_rfile
   - poppunk_clusters
   - poppunk_db
-  - sketch
   - iqtree
   - fastbaps

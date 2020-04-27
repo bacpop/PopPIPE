@@ -98,7 +98,7 @@ combined_seq, core_distMat, acc_distMat = update_distance_matrices(rlist, comple
 
 tmp_core = tempfile.NamedTemporaryFile(delete=False)
 phylip_name = tmp_core.name
-tree_filename = snakemake.output
+tree_filename = snakemake.output[0]
 
 with open(phylip_name, 'w') as pFile:
     pFile.write(str(len(rlist))+"\n")
