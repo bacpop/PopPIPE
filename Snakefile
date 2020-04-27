@@ -8,21 +8,17 @@ validate(config, schema="config.schema.yml")
 # table with sample, sequence, cluster
 samples = pd.read_table(config["poppunk_rfile"], header=None, index_col=0)
 clusters = pd.read_table(config["poppunk_clusters"], sep=",",).set_index("Taxon")
-non_singleton_clusters = list((clusters.Cluster.value_counts()[clusters.Cluster.value_counts() >= config["min_cluster_size"]]).index)
 
-#TODO only index ska files used in clusters
+pruned_clusters = list((clusters.Cluster.value_counts()[clusters.Cluster.value_counts() >= config["min_cluster_size"]]).index)
+pruned_samples = samples.loc[clusters.index[clusters.isin(pruned_clusters)["Cluster"]]]
 
-#TODO use dynamic() to make ska files specific to cluster
-
-# all or a subset?
-# ideally automatically update an existing analysis with new isolates
-# general, python script to generate a params.yaml? 
-# Or just edit a template
+#TODO python script to generate config.yml (use yaml module)
+#this could also execute snakemake targeting specific rules, if certain steps are being skipped for speed
 
 # First rule is the default target
 rule all:
     input:
-        "output/cluster_summary.txt"
+        "all_clusters.txt"
 
 rule split_clusters:
     input:
@@ -87,7 +83,7 @@ rule generate_nj:
 # ska for alignment
 rule ska_index:
     input:
-        assembly=lambda wildcards: samples.loc[wildcards.sample]
+        assembly=lambda wildcards: pruned_samples.loc[wildcards.sample]
     output:
         "ska_index/{sample}.skf"
     log:
@@ -104,7 +100,7 @@ rule ska_align:
     output:
         "clusters/{cluster}/align_variants.aln"
     log:
-       "clusters/{cluster}/ska.log" 
+        "clusters/{cluster}/ska.log" 
     params:
         prefix="clusters/{cluster}/align"
     conda:
@@ -112,17 +108,61 @@ rule ska_align:
     shell:
         "ska align -v -o {params.prefix} -f {input.samples} > {log}"
 
-#TODO remove this
-rule dummy_finish:
+# will set fast or slow in params.yaml
+rule iq_tree:
     input:
-       expand("clusters/{cluster}/align_variants.aln", cluster=non_singleton_clusters),
-       expand("clusters/{cluster}/njtree.nwk", cluster=non_singleton_clusters)
+        start_tree="clusters/{cluster}/njtree.nwk",
+        alignment="clusters/{cluster}/align_variants.aln"
     output:
-       "output/cluster_summary.txt"
-    shell:
-       "touch {output}"
- 
+        rooted="clusters/{cluster}/besttree.nwk",
+        unrooted=temp("clusters/{cluster}/besttree.unrooted.nwk")
+    params:
+        enabled=config['iqtree']['enabled'],
+        mode=config['iqtree']['mode'],
+        model=config['iqtree']['model']
+    log:
+        "clusters/{cluster}/iqtree.log"
+    conda:
+        "envs/iqtree.yml"
+    threads:
+        4
+    run:
+        if config['iqtree']['enabled']:
+            if config['iqtree']['mode'] == "full":
+                shell("iqtree -m {params.model} -s {input.alignment} -t {input.start_tree} -T {threads} --prefix {output.unrooted} > {log}")
+            elif config['iqtree']['mode'] == "fast": 
+                shell("iqtree --fast -s {input.alignment} -t {input.start_tree} -T {threads} --prefix {output.unrooted} > {log}")
+        else:
+            shell("cp {input.start_tree} {output.unrooted}")
+        shell("{config[script_location]}/midroot.py")
 
+# in tree + aln mode
+rule fastbaps:
+    input:
+        tree="clusters/{cluster}/besttree.nwk",
+        align="clusters/{cluster}/align_variants.aln"
+    output:
+        "clusters/{cluster}/fastbaps_clusters.txt"
+    params:
+        fb_script=config['fastbaps']['script'],
+        levels=config['fastbaps']['levels']
+    log:
+        "clusters/{cluster}/fastbaps.log"
+    #conda:
+    #    "envs/fastbaps.yml"
+    threads:
+        4
+    shell:
+        "{params.fb_script} -i {input.align} -o {output} -l {params.levels} --phylogney={input.tree} -t {threads} > {log}"
+        
+rule cluster_summary:
+    input:
+       expand("clusters/{cluster}/fastbaps_clusters.txt", cluster=non_singleton_clusters),
+    output:
+       "all_clusters.txt"
+    shell:
+       "cat {input} > {output}"
+ 
 
 # snap for alignment
 rule snap_index:
@@ -130,11 +170,7 @@ rule snap_index:
 rule snap_map:
 # need to convert vcf to msa
 
-# will set fast or slow in params.yaml
-rule iq_tree:
 
-# in tree + aln mode
-rule fastbaps:
 
 # run overall rapidnj and t-sne
 rule generate_viz:

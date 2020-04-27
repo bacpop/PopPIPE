@@ -97,9 +97,8 @@ complete_distMat = np.load(snakemake.input['npy'])
 combined_seq, core_distMat, acc_distMat = update_distance_matrices(rlist, complete_distMat)
 
 tmp_core = tempfile.NamedTemporaryFile(delete=False)
-tmp_tree = tempfile.NamedTemporaryFile(delete=False)
 phylip_name = tmp_core.name
-tree_filename = tmp_tree.name
+tree_filename = snakemake.output
 
 with open(phylip_name, 'w') as pFile:
     pFile.write(str(len(rlist))+"\n")
@@ -125,13 +124,4 @@ except subprocess.CalledProcessError as e:
     sys.stderr.write("Could not run command " + rapidnj_cmd + "; returned code: " + str(e.returncode) + "\n")
     sys.exit(1)
 
-tree = dendropy.Tree.get(path=tree_filename, schema="newick")
-tree.reroot_at_midpoint(update_bipartitions=True, suppress_unifurcations=False)
-tree.reroot_at_midpoint(update_bipartitions=True, suppress_unifurcations=False)
-tree.write(path=str(snakemake.output),
-            schema="newick",
-            suppress_rooting=True,
-            unquoted_underscores=True)
-
 os.remove(phylip_name)
-os.remove(tree_filename)

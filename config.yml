@@ -11,3 +11,12 @@ sketch:
   max_k: 29
   k_step: 4
   sketch_size: 10000
+
+iqtree:
+  enabled: true
+  mode: full
+  model: GTR+ASC+G
+
+fastbaps:
+  levels: 2
+  script: /Library/Frameworks/R.framework/Versions/3.6/Resources/library/fastbaps/run_fastbaps

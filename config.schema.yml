@@ -35,6 +35,32 @@ properties:
       - max_k
       - k_step
       - sketch_size
+  
+  iqtree:
+    type: object
+    properties:
+      enabled:
+        type: boolean
+      mode:
+        type: string
+        pattern: "^(fast|full)$"
+      model:
+        type: string
+    required:
+      - enabled
+      - mode
+      - model
+
+  fastbaps:
+    type: object
+    properties:
+      script:
+        type: string
+      levels:
+        type: integer
+    required:
+      - script
+      - levels
 
 required:
   - script_location
@@ -42,3 +68,5 @@ required:
   - poppunk_clusters
   - poppunk_db
   - sketch
+  - iqtree
+  - fastbaps
