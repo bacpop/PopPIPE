@@ -47,7 +47,7 @@ rule sketchlib_dists:
         "clusters/{cluster}/dists.npy",
         "clusters/{cluster}/dists.pkl"
     log:
-        "clusters/{cluster}/sketchlib.log"
+        "logs/{cluster}_sketchlib.log"
     params:
         db_prefix = config["poppunk_db"],
         dist_prefix = "clusters/{cluster}/dists",
@@ -87,7 +87,7 @@ rule ska_index:
     output:
         "ska_index/{sample}.skf"
     log:
-        "ska_index/{sample}.log" 
+        "logs/ska_index_{sample}.log" 
     conda:
         "envs/ska.yml"
     shell:
@@ -95,12 +95,12 @@ rule ska_index:
 
 rule ska_align:
     input:
-        ska=expand("ska_index/{sample}.skf", sample=clusters.index),
+        ska=expand("ska_index/{sample}.skf", sample=pruned_samples.index),
         samples="clusters/{cluster}/ska_index.txt"
     output:
         "clusters/{cluster}/align_variants.aln"
     log:
-        "clusters/{cluster}/ska.log" 
+        "logs/ska_align_{cluster}.log" 
     params:
         prefix="clusters/{cluster}/align"
     conda:
@@ -115,26 +115,22 @@ rule iq_tree:
         alignment="clusters/{cluster}/align_variants.aln"
     output:
         rooted="clusters/{cluster}/besttree.nwk",
-        unrooted=temp("clusters/{cluster}/besttree.unrooted.nwk")
+        unrooted=temp("clusters/{cluster}/besttree.unrooted.treefile"),
+        iqtree="clusters/{cluster}/besttree.unrooted.iqtree",
+        ckp="clusters/{cluster}/besttree.unrooted.ckp.gz",
+    log:
+        "clusters/{cluster}/besttree.unrooted.log"
     params:
         enabled=config['iqtree']['enabled'],
         mode=config['iqtree']['mode'],
-        model=config['iqtree']['model']
-    log:
-        "clusters/{cluster}/iqtree.log"
+        model=config['iqtree']['model'],
+        prefix="clusters/{cluster}/besttree.unrooted"
     conda:
         "envs/iqtree.yml"
     threads:
         4
-    run:
-        if config['iqtree']['enabled']:
-            if config['iqtree']['mode'] == "full":
-                shell("iqtree -m {params.model} -s {input.alignment} -t {input.start_tree} -T {threads} --prefix {output.unrooted} > {log}")
-            elif config['iqtree']['mode'] == "fast": 
-                shell("iqtree --fast -s {input.alignment} -t {input.start_tree} -T {threads} --prefix {output.unrooted} > {log}")
-        else:
-            shell("cp {input.start_tree} {output.unrooted}")
-        shell("{config[script_location]}/midroot.py")
+    script:
+        "{config[script_location]}/run_iqtree.py"
 
 # in tree + aln mode
 rule fastbaps:
@@ -147,7 +143,7 @@ rule fastbaps:
         fb_script=config['fastbaps']['script'],
         levels=config['fastbaps']['levels']
     log:
-        "clusters/{cluster}/fastbaps.log"
+        "logs/fastbaps_{cluster}.log"
     #conda:
     #    "envs/fastbaps.yml"
     threads:
@@ -157,12 +153,12 @@ rule fastbaps:
         
 rule cluster_summary:
     input:
-       expand("clusters/{cluster}/fastbaps_clusters.txt", cluster=non_singleton_clusters),
+       expand("clusters/{cluster}/fastbaps_clusters.txt", cluster=pruned_clusters),
     output:
        "all_clusters.txt"
     shell:
        "cat {input} > {output}"
- 
+
 
 # snap for alignment
 rule snap_index:

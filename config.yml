@@ -4,7 +4,7 @@ poppunk_rfile: rlist.txt
 poppunk_clusters: listeria_clusters.csv
 poppunk_db: listeria
 
-min_cluster_size: 3
+min_cluster_size: 6
 
 sketch:
   min_k: 13
