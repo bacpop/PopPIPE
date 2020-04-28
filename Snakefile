@@ -9,8 +9,8 @@ validate(config, schema="config.schema.yml")
 samples = pd.read_table(config["poppunk_rfile"], header=None, index_col=0)
 clusters = pd.read_table(config["poppunk_clusters"], sep=",",).set_index("Taxon")
 
-pruned_clusters = list((clusters.Cluster.value_counts()[clusters.Cluster.value_counts() >= config["min_cluster_size"]]).index)
-pruned_samples = samples.loc[clusters.index[clusters.isin(pruned_clusters)["Cluster"]]]
+included_strain_ids = list((clusters.Cluster.value_counts()[clusters.Cluster.value_counts() >= config["min_cluster_size"]]).index)
+included_samples = samples.loc[clusters.index[clusters.isin(included_strain_ids)["Cluster"]]]
 
 # First rule is the default target
 rule all:
@@ -82,7 +82,7 @@ rule generate_nj:
 #TODO modify this to work out whether fastq version is needed
 rule ska_index:
     input:
-        assembly=lambda wildcards: pruned_samples.loc[wildcards.sample]
+        assembly=lambda wildcards: included_samples.loc[wildcards.sample]
     output:
         "output/ska_index/{sample}.skf"
     log:
@@ -94,7 +94,7 @@ rule ska_index:
 
 rule ska_align:
     input:
-        ska=expand("output/ska_index/{sample}.skf", sample=pruned_samples.index),
+        ska=expand("output/ska_index/{sample}.skf", sample=included_samples.index),
         samples="output/strains/{strain}/ska_index.txt"
     output:
         "output/strains/{strain}/align_variants.aln"
@@ -167,9 +167,9 @@ rule fastbaps:
         
 rule cluster_summary:
     input:
-       expand("output/strains/{strain}/fastbaps_clusters.txt", strain=pruned_clusters),
+        expand("output/strains/{strain}/fastbaps_clusters.txt", strain=included_strain_ids)
     output:
-       "output/all_clusters.txt"
+        "output/all_clusters.txt"
     params:
         levels=config['fastbaps']['levels']
     script:
@@ -178,6 +178,7 @@ rule cluster_summary:
 
 # run overall rapidnj and t-sne
 rule generate_viz:
+#TODO refine overall tree by replacing subclades with ML trees
 
 # use microreact api
 rule make_microreact:
