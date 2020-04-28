@@ -1,4 +1,5 @@
 import pandas as pd
+from collections import defaultdict
 from snakemake.utils import validate, min_version
 min_version("5.1.2")
 
@@ -35,6 +36,25 @@ rule split_strains:
             with open(output.skafile, 'w') as ska_list:
                 for sample in cluster_samples:
                     ska_list.write("output/ska_index/" + sample + ".skf\n")
+
+rule group_stragglers:
+    input:
+        config["poppunk_rfile"]
+    output:
+        rfile="output/strains/other/rfile.txt",
+        namefile="output/strains/other/names.txt"
+    group:
+        "clustersplit"
+    run:
+        excluded_strains = clusters.loc[clusters.index[~clusters.isin(included_strain_ids)["Cluster"]]]
+        d = defaultdict(list)
+        for strain in included_strain_ids:
+            strain_list = clusters.loc[clusters['Cluster'] == int(strain)]
+            d['Taxon'].append(strain_list.index[0])
+            d['Cluster'].append(strain_list['Cluster'][0])
+        all_df = pd.concat([pd.DataFrame(data=d).set_index('Taxon'), excluded_strains])
+        all_df.to_csv(output.rfile, sep="\t", header=False)
+        all_df.index.to_series().to_csv(output.namefile, sep="\t", header=False, index=False)
 
 # Use sketchlib to extract distances
 # TODO write wrapper script which generates(/updates) input from a PopPUNK run
@@ -133,6 +153,7 @@ rule iq_tree:
     script:
         "{config[script_location]}/run_iqtree.py"
 
+#TODO replace with Nick's lineage clustering algorithm
 rule hclust:
     input:
         npy="output/strains/{strain}/dists.npy",
@@ -175,10 +196,23 @@ rule cluster_summary:
     script:
        "{config[script_location]}/number_clusters.py"
 
+rule graft_tree:
+    input:
+        ml_trees=expand("output/strains/{strain}/besttree.nwk", strain=included_strain_ids),
+        nj_tree="output/strains/other/njtree.nwk"
+    output:
+        "output/full_tree.nwk"
+    conda:
+        "envs/nj.yml" 
+    script:
+        "{config[script_location]}/tree_graft.py"
 
-# run overall rapidnj and t-sne
-rule generate_viz:
-#TODO refine overall tree by replacing subclades with ML trees
+#TODO include pathoSCE here?
+rule generate_dot:
+    input:
+        "output/all_clusters.txt"
+    output:
+        "output/embedding.dot"
 
 # use microreact api
 rule make_microreact:

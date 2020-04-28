@@ -42,7 +42,7 @@ with open(snakemake.output[0], 'w') as outfile:
                 outfile.write(",".join(fields_out) + "\n")
     
     for sample, cluster in excluded_clusters.iterrows():
-        fields_out = [sample, str(cluster.values[0])] + ['NA'] * snakemake.params['levels']
+        fields_out = [sample, str(cluster['Cluster'])] + ['NA'] * snakemake.params['levels']
         outfile.write(",".join(fields_out) + "\n") 
 
 
