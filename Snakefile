@@ -17,17 +17,17 @@ rule all:
     input:
         "output/all_clusters.txt"
 
-rule split_clusters:
+rule split_strains:
     input:
         config["poppunk_rfile"]
     output:
-        rfile="output/clusters/{cluster}/rfile.txt",
-        namefile="output/clusters/{cluster}/names.txt",
-        skafile="output/clusters/{cluster}/ska_index.txt"
+        rfile="output/strains/{strain}/rfile.txt",
+        namefile="output/strains/{strain}/names.txt",
+        skafile="output/strains/{strain}/ska_index.txt"
     group:
         "clustersplit"
     run:
-        cluster_samples = clusters.loc[clusters['Cluster'] == int(wildcards.cluster)].index
+        cluster_samples = clusters.loc[clusters['Cluster'] == int(wildcards.strain)].index
         sample_subset = samples.loc[list(cluster_samples)]
         if (len(sample_subset) > 1):
             sample_subset.to_csv(output.rfile, sep="\t", header=False)
@@ -41,17 +41,17 @@ rule split_clusters:
 rule sketchlib_dists:
     input:
         database = config["poppunk_db"] + ".h5",
-        names = "output/clusters/{cluster}/names.txt"
+        names = "output/strains/{strain}/names.txt"
     output:
-        "output/clusters/{cluster}/dists.npy",
-        "output/clusters/{cluster}/dists.pkl"
+        "output/strains/{strain}/dists.npy",
+        "output/strains/{strain}/dists.pkl"
     group:
         "sketchlib"
     log:
-        "logs/{cluster}_sketchlib.log"
+        "logs/{strain}_sketchlib.log"
     params:
         db_prefix = config["poppunk_db"],
-        dist_prefix = "output/clusters/{cluster}/dists"
+        dist_prefix = "output/strains/{strain}/dists"
     threads:
         16
     conda:
@@ -67,10 +67,10 @@ rule sketchlib_dists:
 # rapidnj
 rule generate_nj:
     input:
-        npy="output/clusters/{cluster}/dists.npy",
-        pkl="output/clusters/{cluster}/dists.pkl" 
+        npy="output/strains/{strain}/dists.npy",
+        pkl="output/strains/{strain}/dists.pkl" 
     output:
-        "output/clusters/{cluster}/njtree.nwk"
+        "output/strains/{strain}/njtree.nwk"
     group:
         "quicktree"
     conda:
@@ -95,15 +95,15 @@ rule ska_index:
 rule ska_align:
     input:
         ska=expand("output/ska_index/{sample}.skf", sample=pruned_samples.index),
-        samples="output/clusters/{cluster}/ska_index.txt"
+        samples="output/strains/{strain}/ska_index.txt"
     output:
-        "output/clusters/{cluster}/align_variants.aln"
+        "output/strains/{strain}/align_variants.aln"
     group:
         "align"
     log:
-        "logs/ska_align_{cluster}.log" 
+        "logs/ska_align_{strain}.log" 
     params:
-        prefix="output/clusters/{cluster}/align"
+        prefix="output/strains/{strain}/align"
     conda:
         "envs/ska.yml"
     shell:
@@ -112,20 +112,20 @@ rule ska_align:
 # will set fast or slow in params.yaml
 rule iq_tree:
     input:
-        start_tree="output/clusters/{cluster}/njtree.nwk",
-        alignment="output/clusters/{cluster}/align_variants.aln"
+        start_tree="output/strains/{strain}/njtree.nwk",
+        alignment="output/strains/{strain}/align_variants.aln"
     output:
-        rooted="output/clusters/{cluster}/besttree.nwk",
-        unrooted=temp("output/clusters/{cluster}/besttree.unrooted.treefile"),
-        iqtree=temp("output/clusters/{cluster}/besttree.unrooted.iqtree"),
-        ckp=temp("output/clusters/{cluster}/besttree.unrooted.ckp.gz")
+        rooted="output/strains/{strain}/besttree.nwk",
+        unrooted=temp("output/strains/{strain}/besttree.unrooted.treefile"),
+        iqtree=temp("output/strains/{strain}/besttree.unrooted.iqtree"),
+        ckp=temp("output/strains/{strain}/besttree.unrooted.ckp.gz")
     log:
-        "output/clusters/{cluster}/besttree.unrooted.log"
+        "output/strains/{strain}/besttree.unrooted.log"
     params:
         enabled=config['iqtree']['enabled'],
         mode=config['iqtree']['mode'],
         model=config['iqtree']['model'],
-        prefix="output/clusters/{cluster}/besttree.unrooted"
+        prefix="output/strains/{strain}/besttree.unrooted"
     conda:
         "envs/iqtree.yml"
     threads:
@@ -135,10 +135,10 @@ rule iq_tree:
 
 rule hclust:
     input:
-        npy="output/clusters/{cluster}/dists.npy",
-        pkl="output/clusters/{cluster}/dists.pkl" 
+        npy="output/strains/{strain}/dists.npy",
+        pkl="output/strains/{strain}/dists.pkl" 
     output:
-        "output/clusters/{cluster}/hclust.txt"
+        "output/strains/{strain}/hclust.txt"
     group:
         "quickclust"
     script:
@@ -147,17 +147,17 @@ rule hclust:
 # in tree + aln mode
 rule fastbaps:
     input:
-        tree="output/clusters/{cluster}/besttree.nwk",
-        align="output/clusters/{cluster}/align_variants.aln"
+        tree="output/strains/{strain}/besttree.nwk",
+        align="output/strains/{strain}/align_variants.aln"
     output:
-        "output/clusters/{cluster}/fastbaps_clusters.txt"
+        "output/strains/{strain}/fastbaps_clusters.txt"
     group:
         "bapsclust"
     params:
         fb_script=config['fastbaps']['script'],
         levels=config['fastbaps']['levels']
     log:
-        "logs/fastbaps_{cluster}.log"
+        "logs/fastbaps_{strain}.log"
     #conda:
     #    "envs/fastbaps.yml"
     threads:
@@ -167,11 +167,13 @@ rule fastbaps:
         
 rule cluster_summary:
     input:
-       expand("output/clusters/{cluster}/fastbaps_clusters.txt", cluster=pruned_clusters),
+       expand("output/strains/{strain}/fastbaps_clusters.txt", strain=pruned_clusters),
     output:
        "output/all_clusters.txt"
-    shell:
-       "cat {input} > {output}" #TODO replace this with a script to give secondary clusters consistent names
+    params:
+        levels=config['fastbaps']['levels']
+    script:
+       "{config[script_location]}/number_clusters.py"
 
 
 # run overall rapidnj and t-sne

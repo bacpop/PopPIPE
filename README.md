@@ -1,5 +1,4 @@
-# PopPIPE
-Population analysis PIPEline 🛠🧬
+# PopPIPE: Population analysis PIPEline 🛠🧬
 
 Downstream analysis of [PopPUNK](https://www.poppunk.net/) results.
 
@@ -50,6 +49,18 @@ snakemake --cluster qsub -j 16 --use-conda
 See the [snakemake docs](https://snakemake.readthedocs.io/en/stable/executing/cluster-cloud.html) 
 for more information on your cluster/cloud provider.
 
+### Alternative runs
+
+For quick and dirty clustering and phylogenies using core distances from
+[pp-sketchlib](https://github.com/johnlees/pp-sketchlib) alone, run:
+```
+snakemake --cores <n_cores> --use-conda hclust
+```
+
+To create a visualisation on [microreact](https://microreact.org/):
+```
+snakemake --use-conda make_microreact
+
 ## Config file
 
 ### PopPIPE configuration
@@ -71,17 +82,6 @@ for more information on your cluster/cloud provider.
 * `levels`: Number of levels of recursive subclustering.
 * `script`: Location of the `run_fastbaps` script. Find by running `system.file("run_fastbaps", package = "fastbaps")` in R.
 
-### Alternative runs
-
-For quick and dirty clustering and phylogenies using core distances from
-[pp-sketchlib](https://github.com/johnlees/pp-sketchlib) alone, run:
-```
-snakemake --cores <n_cores> --use-conda hclust
-```
-
-To create a visualisation on [microreact](https://microreact.org/):
-```
-snakemake --use-conda make_microreact
 ```
 
 ## Updating a run
