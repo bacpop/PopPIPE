@@ -16,7 +16,9 @@ The pipeline consists of the following steps:
 
 ### Example pipeline DAG
 
-**TODO**
+![pipeline dag](snakemake_dag.png)
+
+`ska index` steps (one per sample, and a dependency of all `ska align` steps) have been omitted for simplicity.
 
 ## Installation
 

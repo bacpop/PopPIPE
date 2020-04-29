@@ -14,9 +14,15 @@ included_strain_ids = list((clusters.Cluster.value_counts()[clusters.Cluster.val
 included_samples = samples.loc[clusters.index[clusters.isin(included_strain_ids)["Cluster"]]]
 
 # First rule is the default target
-rule all:
+rule cluster_summary:
     input:
+        expand("output/strains/{strain}/fastbaps_clusters.txt", strain=included_strain_ids)
+    output:
         "output/all_clusters.txt"
+    params:
+        levels=config['fastbaps']['levels']
+    script:
+       "{config[poppipe_location]}/scripts/number_clusters.py"
 
 rule split_strains:
     input:
@@ -76,7 +82,7 @@ rule sketchlib_dists:
     threads:
         16
     conda:
-        "envs/sketch.yml"
+        "{config[poppipe_location]}/envs/sketch.yml"
     shell:
         # TODO use this when I have fixed the subset option on the conda-forge version
         #"poppunk_sketch --query --ref-db {params.db_prefix} --query-db {params.db_prefix} --subset {input.names} "
@@ -95,9 +101,9 @@ rule generate_nj:
     group:
         "quicktree"
     conda:
-        "envs/nj.yml"
+        "{config[poppipe_location]}/envs/nj.yml"
     script:
-        "{config[script_location]}/run_rapidnj.py"
+        "{config[poppipe_location]}/scripts/run_rapidnj.py"
 
 # ska for alignment
 #TODO modify this to work out whether fastq version is needed
@@ -109,7 +115,7 @@ rule ska_index:
     log:
         "logs/ska_index_{sample}.log" 
     conda:
-        "envs/ska.yml"
+        "{config[poppipe_location]}/envs/ska.yml"
     shell:
         "ska fasta -o output/ska_index/{wildcards.sample} {input.assembly} > {log}"
 
@@ -126,7 +132,7 @@ rule ska_align:
     params:
         prefix="output/strains/{strain}/align"
     conda:
-        "envs/ska.yml"
+        "{config[poppipe_location]}/envs/ska.yml"
     shell:
         "ska align -v -o {params.prefix} -f {input.samples} > {log}"
 
@@ -148,14 +154,14 @@ rule iq_tree:
         model=config['iqtree']['model'],
         prefix="output/strains/{strain}/besttree.unrooted"
     conda:
-        "envs/iqtree.yml"
+        "{config[poppipe_location]}/envs/iqtree.yml"
     threads:
         4
     script:
-        "{config[script_location]}/run_iqtree.py"
+        "{config[poppipe_location]}/scripts/run_iqtree.py"
 
 #TODO replace with Nick's lineage clustering algorithm
-rule hclust:
+rule lineage_clust:
     input:
         npy="output/strains/{strain}/dists.npy",
         pkl="output/strains/{strain}/dists.pkl" 
@@ -164,7 +170,7 @@ rule hclust:
     group:
         "quickclust"
     script:
-       "{config[script_location]}/run_hclust.py" #TODO call the cluster numbering script from within here
+       "{config[poppipe_location]}/scripts/run_hclust.py" #TODO call the cluster numbering script from within here
 
 # in tree + aln mode
 rule fastbaps:
@@ -180,22 +186,14 @@ rule fastbaps:
         levels=config['fastbaps']['levels']
     log:
         "logs/fastbaps_{strain}.log"
-    #conda:
-    #    "envs/fastbaps.yml"
+    conda:
+        "{config[poppipe_location]}/envs/fastbaps.yml"
     threads:
         2
     shell:
         "{params.fb_script} -p 'baps' -i {input.align} -o {output} -l {params.levels} --phylogney={input.tree} -t {threads} > {log}"
         
-rule cluster_summary:
-    input:
-        expand("output/strains/{strain}/fastbaps_clusters.txt", strain=included_strain_ids)
-    output:
-        "output/all_clusters.txt"
-    params:
-        levels=config['fastbaps']['levels']
-    script:
-       "{config[script_location]}/number_clusters.py"
+# Visualisation below here:
 
 rule graft_tree:
     input:
@@ -204,20 +202,53 @@ rule graft_tree:
         overall_tree="output/strains/other/njtree.nwk"
     output:
         "output/full_tree.nwk"
+    group:
+        "viz"
     conda:
-        "envs/nj.yml" 
+        "{config[poppipe_location]}/envs/nj.yml" 
     script:
-        "{config[script_location]}/tree_graft.py"
+        "{config[poppipe_location]}/scripts/tree_graft.py"
 
-#TODO include pathoSCE here?
 rule generate_dot:
     input:
-        "output/all_clusters.txt"
+        database = config["poppunk_db"] + ".h5"
     output:
-        "output/embedding.dot"
+        "output/embedding.dot",
+        "output/all_dists.npy",
+        "output/all_dists.pkl"
+    group:
+        "viz"
+    params:
+        dist_prefix="output/all_dists",
+        db_prefix = config["poppunk_db"]
+    threads:
+        16
+    log:
+        "logs/tsne.log"
+    conda:
+        "{config[poppipe_location]}/envs/poppunk.yml"
+    shell:
+        """
+        poppunk_sketch --query --ref-db {params.db_prefix} --query-db {params.db_prefix} --output {params.dist_prefix} --read-k --cpus {threads} &> {log}"
+        poppunk_tsne --distances {params.dist_prefix} --output {output} --perplexity {params.tsne.perplexity} --verbosity 1 &>> {log}
+        """
 
 # use microreact api
 rule make_microreact:
+    input:
+        tree="output/full_tree.nwk",
+        clusters="output/all_clusters.txt",
+        dot="output/embedding.dot"
+    output:
+        "output/microreact_url.txt"
+    params:
+        microreact_name=config['microreact']['name'],
+        microreact_email=config['microreact']['email'],
+        microreact_website=config['microreact']['website']
+    group:
+        "viz"
+    script:
+        "{config[poppipe_location]}/scripts/make_microreact.py" 
 
 #TODO possible extension - use snap for when the input is fastq
 # snap for alignment - pick a good N50 to align to

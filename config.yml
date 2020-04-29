@@ -1,16 +1,34 @@
-script_location: scripts
+# Location of PopPIPE repository relative to the Snakefile
+poppipe_location: ./
 
+# Files output by the PopPUNK run
 poppunk_rfile: rlist.txt
 poppunk_clusters: listeria_clusters.csv
 poppunk_db: listeria
 
+# Minimum cluster size to subcluster
 min_cluster_size: 6
 
+# IQ-TREE options
 iqtree:
   enabled: true
   mode: full
   model: GTR+ASC+G
 
+# fastbaps options
 fastbaps:
+  # Number of hierarchical clustering levels
   levels: 2
+  # Location of `run_fastbaps`.
+  # Find by running `system.file("run_fastbaps", package = "fastbaps")` in R. 
   script: /Library/Frameworks/R.framework/Versions/3.6/Resources/library/fastbaps/run_fastbaps
+
+# tsne options
+tsne:
+  perplexity: 25
+
+# Microreact title, and your contact details
+microreact:
+  name: Listeria PopPIPE
+  website: https://www.poppunk.net
+  email: poppunk@poppunk.net

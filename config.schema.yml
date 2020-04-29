@@ -5,7 +5,7 @@ description: snakemake configuration file
 type: object
 
 properties:
-  script_location:
+  poppipe_location:
     type: string
   
   poppunk_rfile:
@@ -46,10 +46,36 @@ properties:
       - script
       - levels
 
+  tsne:
+    type: object
+    properties:
+      perplexity:
+        type: number
+        minimum: 5
+        maximum: 50
+    required:
+      - perplexity
+  
+  microreact:
+    type: object
+    properties:
+      name:
+        type: string
+      website:
+        type: string
+      email:
+        type: string
+    required:
+      - name
+      - website
+      - email
+
 required:
-  - script_location
+  - poppipe_location
   - poppunk_rfile
   - poppunk_clusters
   - poppunk_db
   - iqtree
   - fastbaps
+  - tsne
+  - microreact
