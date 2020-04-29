@@ -1,7 +1,7 @@
 import pandas as pd
 from collections import defaultdict
 from snakemake.utils import validate, min_version
-min_version("5.1.2")
+min_version("5.3.0")
 
 configfile: "config.yml"
 validate(config, schema="config.schema.yml")
@@ -58,6 +58,7 @@ rule group_stragglers:
 
 # Use sketchlib to extract distances
 # TODO write wrapper script which generates(/updates) input from a PopPUNK run
+# needs to delete output files from strain directories
 rule sketchlib_dists:
     input:
         database = config["poppunk_db"] + ".h5",
@@ -81,7 +82,7 @@ rule sketchlib_dists:
         #"poppunk_sketch --query --ref-db {params.db_prefix} --query-db {params.db_prefix} --subset {input.names} "
         #"--output {params.dist_prefix} --min-k {params.min_k} --max-k {params.max_k} --k-step {params.k_step} "
         #"--sketch-size {params.sketch_size} --cpus {threads} &> {log}"
-        "python ../pp-sketchlib/pp_sketch-runner.py --query --ref-db {params.db_prefix} --query-db {params.db_prefix} "
+        "export DYLD_FALLBACK_LIBRARY_PATH=/Users/jlees/miniconda3/envs/gfortran/lib && python ../pp-sketchlib/pp_sketch-runner.py --query --ref-db {params.db_prefix} --query-db {params.db_prefix} "
         "--subset {input.names} --output {params.dist_prefix} --read-k --cpus {threads} &> {log}"
 
 # rapidnj
@@ -199,7 +200,8 @@ rule cluster_summary:
 rule graft_tree:
     input:
         ml_trees=expand("output/strains/{strain}/besttree.nwk", strain=included_strain_ids),
-        nj_tree="output/strains/other/njtree.nwk"
+        nj_trees=expand("output/strains/{strain}/njtree.nwk", strain=included_strain_ids),
+        overall_tree="output/strains/other/njtree.nwk"
     output:
         "output/full_tree.nwk"
     conda:
