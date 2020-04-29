@@ -8,7 +8,7 @@ The pipeline consists of the following steps:
 - Split files into their [PopPUNK](https://www.poppunk.net/) strains.
 - Use [pp-sketchlib](https://github.com/johnlees/pp-sketchlib) to calculate core and accessory distances within each strain.
 - Use core distances and [rapidnj](https://birc.au.dk/software/rapidnj/) to make a neighbour-joining tree.
-- (hclust mode) Generate clusters from core distances with hierarchical clustering in [scikit-learn](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html).
+- (lineage_clust mode) Generate clusters from core distances with lineage clustering in PopPUNK.
 - Use [ska](https://github.com/simonrharris/SKA) to generate within-strain alignments.
 - Use [IQ-TREE](http://www.iqtree.org/) to generate an ML phylogeny using this alignment, and the NJ tree as a starting point.
 - Use [fastbaps](https://github.com/gtonkinhill/fastbaps) to generate subclusters which are partitions of the phylogeny.
@@ -60,12 +60,13 @@ for more information on your cluster/cloud provider.
 For quick and dirty clustering and phylogenies using core distances from
 [pp-sketchlib](https://github.com/johnlees/pp-sketchlib) alone, run:
 ```
-snakemake --cores <n_cores> --use-conda hclust
+snakemake --cores <n_cores> --use-conda lineage_clust
 ```
 
 To create a visualisation on [microreact](https://microreact.org/):
 ```
 snakemake --use-conda make_microreact
+```
 
 ## Config file
 
@@ -88,7 +89,6 @@ snakemake --use-conda make_microreact
 * `levels`: Number of levels of recursive subclustering.
 * `script`: Location of the `run_fastbaps` script. Find by running `system.file("run_fastbaps", package = "fastbaps")` in R.
 
-```
 
 ## Updating a run
 Running `snakemake` from the same directory will keep outputs where possible,
