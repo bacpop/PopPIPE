@@ -82,7 +82,7 @@ rule sketchlib_dists:
     threads:
         16
     conda:
-        "{config[poppipe_location]}/envs/sketch.yml"
+        config["poppipe_location"] + "/envs/sketch.yml"
     shell:
         # TODO use this when I have fixed the subset option on the conda-forge version
         #"poppunk_sketch --query --ref-db {params.db_prefix} --query-db {params.db_prefix} --subset {input.names} "
@@ -101,7 +101,7 @@ rule generate_nj:
     group:
         "quicktree"
     conda:
-        "{config[poppipe_location]}/envs/nj.yml"
+        config["poppipe_location"] + "/envs/nj.yml"
     script:
         "{config[poppipe_location]}/scripts/run_rapidnj.py"
 
@@ -115,7 +115,7 @@ rule ska_index:
     log:
         "logs/ska_index_{sample}.log" 
     conda:
-        "{config[poppipe_location]}/envs/ska.yml"
+        config["poppipe_location"] + "/envs/ska.yml"
     shell:
         "ska fasta -o output/ska_index/{wildcards.sample} {input.assembly} > {log}"
 
@@ -132,7 +132,7 @@ rule ska_align:
     params:
         prefix="output/strains/{strain}/align"
     conda:
-        "{config[poppipe_location]}/envs/ska.yml"
+        config["poppipe_location"] + "/envs/ska.yml"
     shell:
         "ska align -v -o {params.prefix} -f {input.samples} > {log}"
 
@@ -154,7 +154,7 @@ rule iq_tree:
         model=config['iqtree']['model'],
         prefix="output/strains/{strain}/besttree.unrooted"
     conda:
-        "{config[poppipe_location]}/envs/iqtree.yml"
+        config["poppipe_location"] + "/envs/iqtree.yml"
     threads:
         4
     script:
@@ -187,7 +187,7 @@ rule fastbaps:
     log:
         "logs/fastbaps_{strain}.log"
     conda:
-        "{config[poppipe_location]}/envs/fastbaps.yml"
+        config["poppipe_location"] + "/envs/fastbaps.yml"
     threads:
         2
     shell:
@@ -205,7 +205,7 @@ rule graft_tree:
     group:
         "viz"
     conda:
-        "{config[poppipe_location]}/envs/nj.yml" 
+        config["poppipe_location"] + "/envs/nj.yml"
     script:
         "{config[poppipe_location]}/scripts/tree_graft.py"
 
@@ -213,25 +213,33 @@ rule generate_dot:
     input:
         database = config["poppunk_db"] + ".h5"
     output:
-        "output/embedding.dot",
         "output/all_dists.npy",
-        "output/all_dists.pkl"
+        "output/all_dists.pkl",
+        tsne_out="output/embedding.dot"
     group:
         "viz"
     params:
-        dist_prefix="output/all_dists",
-        db_prefix = config["poppunk_db"]
+        dist_prefix = "output/all_dists",
+        db_prefix = config["poppunk_db"],
+        perplexity = config['tsne']['perplexity']
     threads:
         16
     log:
-        "logs/tsne.log"
+        sketch_log = "logs/all_query.log",
+        tsne_log = "logs/tsne.log"
     conda:
-        "{config[poppipe_location]}/envs/poppunk.yml"
+        config["poppipe_location"] + "/envs/poppunk.yml"
     shell:
         """
-        poppunk_sketch --query --ref-db {params.db_prefix} --query-db {params.db_prefix} --output {params.dist_prefix} --read-k --cpus {threads} &> {log}"
-        poppunk_tsne --distances {params.dist_prefix} --output {output} --perplexity {params.tsne.perplexity} --verbosity 1 &>> {log}
+        export DYLD_FALLBACK_LIBRARY_PATH=/Users/jlees/miniconda3/envs/gfortran/lib && python ../pp-sketchlib/pp_sketch-runner.py --query --ref-db {params.db_prefix} --query-db {params.db_prefix} --output {params.dist_prefix} --read-k --cpus {threads} &> {log.sketch_log}
+        poppunk_tsne --distances {params.dist_prefix} --output output --perplexity {params.perplexity} --verbosity 1 &> {log.tsne_log}
+        mv output/output_perplexity{params.perplexity}_accessory_tsne.dot {output.tsne_out}
         """
+        #"""
+        #poppunk_sketch --query --ref-db {params.db_prefix} --query-db {params.db_prefix} --output {params.dist_prefix} --read-k --cpus {threads} &> {log.sketch_log}
+        #poppunk_tsne --distances {params.dist_prefix} --output output --perplexity {params.perplexity} --verbosity 1 &> {log.tsne_log}
+        #mv output/output_perplexity{params.perplexity}_accessory_tsne.dot {output.tsne_out}
+        #"""
 
 # use microreact api
 rule make_microreact:

@@ -12,7 +12,7 @@ The pipeline consists of the following steps:
 - Use [ska](https://github.com/simonrharris/SKA) to generate within-strain alignments.
 - Use [IQ-TREE](http://www.iqtree.org/) to generate an ML phylogeny using this alignment, and the NJ tree as a starting point.
 - Use [fastbaps](https://github.com/gtonkinhill/fastbaps) to generate subclusters which are partitions of the phylogeny.
-- Create an overall visualisation with both core and accessory distances, as in PopPUNK.
+- Create an overall visualisation with both core and accessory distances, as in PopPUNK. The final tree consists of refining the NJ tree by grafting the maximum likelihood trees for subclusters to their matching nodes.
 
 ### Example pipeline DAG
 
@@ -24,9 +24,9 @@ The pipeline consists of the following steps:
 
 The supported method is to use conda, which is most easily accessed by first
 installing [miniconda](https://conda.io/miniconda.html). PopPIPE simply depends
-upon snakemake:
+upon snakemake and pandas:
 ```
-conda install snakemake
+conda install snakemake pandas
 ```
 
 Other dependencies will be automatically installed by conda the first time

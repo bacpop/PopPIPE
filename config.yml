@@ -1,5 +1,5 @@
 # Location of PopPIPE repository relative to the Snakefile
-poppipe_location: ./
+poppipe_location: .
 
 # Files output by the PopPUNK run
 poppunk_rfile: rlist.txt
