@@ -27,7 +27,7 @@ payload = {"name": snakemake.params['microreact_name'],
            "website": snakemake.params['microreact_website'],
            "data": csv_string,
            "tree": tree_string,
-           "dot": dot_string} 
+           "dot": dot_string}
 
 r = requests.post(microreact_api_url, data = payload)
 if r.ok:
@@ -41,4 +41,3 @@ elif r.status_code == 400:
 else:
     sys.stderr.write("Microreact API call failed with unknown response code " + str(r.status_code) + "\n")
     sys.exit(1)
-    

@@ -2,4 +2,4 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
-  - poppunk =2
+  - poppunk >=2.3.0

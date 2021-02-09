@@ -12,4 +12,5 @@ dependencies:
   - dendropy >=4.4.0
   - ska >=1.0
   - pp-sketchlib >=1.6.4
+  - poppunk >=2.3.0
   - r-fastbaps >=1.0.3

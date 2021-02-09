@@ -1,5 +1,7 @@
-import pandas as pd
+
+import re
 from collections import defaultdict
+import pandas as pd
 from snakemake.utils import validate, min_version
 min_version("5.3.0")
 
@@ -63,8 +65,6 @@ rule group_stragglers:
         all_df.index.to_series().to_csv(output.namefile, sep="\t", header=False, index=False)
 
 # Use sketchlib to extract distances
-# TODO write wrapper script which generates(/updates) input from a PopPUNK run
-# needs to delete output files from strain directories
 rule sketchlib_dists:
     input:
         database = config["poppunk_db"] + ".h5",
@@ -84,12 +84,8 @@ rule sketchlib_dists:
     conda:
         config["poppipe_location"] + "/envs/sketch.yml"
     shell:
-        # TODO use this when I have fixed the subset option on the conda-forge version
-        #"poppunk_sketch --query --ref-db {params.db_prefix} --query-db {params.db_prefix} --subset {input.names} "
-        #"--output {params.dist_prefix} --min-k {params.min_k} --max-k {params.max_k} --k-step {params.k_step} "
-        #"--sketch-size {params.sketch_size} --cpus {threads} &> {log}"
-        "export DYLD_FALLBACK_LIBRARY_PATH=/Users/jlees/miniconda3/envs/gfortran/lib && python ../pp-sketchlib/pp_sketch-runner.py --query --ref-db {params.db_prefix} --query-db {params.db_prefix} "
-        "--subset {input.names} --output {params.dist_prefix} --read-k --cpus {threads} &> {log}"
+        "poppunk_sketch --query --ref-db {params.db_prefix} --query-db {params.db_prefix} --subset {input.names} "
+        "--output {params.dist_prefix} --read-k --cpus {threads} &> {log}"
 
 # rapidnj
 rule generate_nj:
@@ -106,18 +102,24 @@ rule generate_nj:
         "{config[poppipe_location]}/scripts/run_rapidnj.py"
 
 # ska for alignment
-#TODO modify this to work out whether fastq version is needed
 rule ska_index:
     input:
         assembly=lambda wildcards: included_samples.loc[wildcards.sample]
     output:
         "output/ska_index/{sample}.skf"
+    params:
+        fastq_qual=config['iqtree']['fastq_cov'],
+        fastq_cov=config['iqtree']['fastq_qual']
     log:
         "logs/ska_index_{sample}.log"
     conda:
         config["poppipe_location"] + "/envs/ska.yml"
-    shell:
-        "ska fasta -o output/ska_index/{wildcards.sample} {input.assembly} > {log}"
+    run:
+        if re.match(r"\.(fq|fastq)\.$", input.assembly):
+            shell("ska fastq -o output/ska_index/" + wildcards.sample + " -q " + params.fastq_qual + \
+                  " -c " + params.fastq_cov + " " + input.assembly + " > " + log)
+        else:
+            shell("ska fasta -o output/ska_index/" + wildcards.sample + " " + input.assembly + " > " + log)
 
 rule ska_align:
     input:
@@ -159,18 +161,6 @@ rule iq_tree:
         4
     script:
         "{config[poppipe_location]}/scripts/run_iqtree.py"
-
-#TODO replace with Nick's lineage clustering algorithm
-rule lineage_clust:
-    input:
-        npy="output/strains/{strain}/dists.npy",
-        pkl="output/strains/{strain}/dists.pkl"
-    output:
-        "output/strains/{strain}/hclust.txt"
-    group:
-        "quickclust"
-    script:
-       "{config[poppipe_location]}/scripts/run_hclust.py" #TODO call the cluster numbering script from within here
 
 # in tree + aln mode
 rule fastbaps:
@@ -229,17 +219,18 @@ rule generate_dot:
         tsne_log = "logs/tsne.log"
     conda:
         config["poppipe_location"] + "/envs/poppunk.yml"
-    shell:
-        """
-        export DYLD_FALLBACK_LIBRARY_PATH=/Users/jlees/miniconda3/envs/gfortran/lib && python ../pp-sketchlib/pp_sketch-runner.py --query --ref-db {params.db_prefix} --query-db {params.db_prefix} --output {params.dist_prefix} --read-k --cpus {threads} &> {log.sketch_log}
-        poppunk_tsne --distances {params.dist_prefix} --output output --perplexity {params.perplexity} --verbosity 1 &> {log.tsne_log}
-        mv output/output_perplexity{params.perplexity}_accessory_tsne.dot {output.tsne_out}
-        """
-        #"""
-        #poppunk_sketch --query --ref-db {params.db_prefix} --query-db {params.db_prefix} --output {params.dist_prefix} --read-k --cpus {threads} &> {log.sketch_log}
-        #poppunk_tsne --distances {params.dist_prefix} --output output --perplexity {params.perplexity} --verbosity 1 &> {log.tsne_log}
-        #mv output/output_perplexity{params.perplexity}_accessory_tsne.dot {output.tsne_out}
-        #"""
+    run:
+        if config["tsne"]["use_gpu"]:
+            shell("poppunk_sketch --query --ref-db " + params.db_prefix + "--query-db " + params.db_prefix + \
+                  "--output " + params.dist_prefix + " --read-k --use-gpu &> " + log.sketch_log)
+        else:
+            shell("poppunk_sketch --query --ref-db " + params.db_prefix + "--query-db " + params.db_prefix + \
+                  "--output " + params.dist_prefix + " --read-k --cpus " + threads + " &> " + log.sketch_log)
+        shell("poppunk_tsne --distances " + params.dist_prefix + " --output output --perplexity " + \
+              params.perplexity + " --verbosity 1 &> " + log.tsne_log)
+        os.rename("output/output_perplexity " + params.perplexity + "_accessory_tsne.dot",
+                  output.tsne_out)
+
 
 # use microreact api
 rule make_microreact:
@@ -257,16 +248,4 @@ rule make_microreact:
         "viz"
     script:
         "{config[poppipe_location]}/scripts/make_microreact.py"
-
-#TODO possible extension - use snap for when the input is fastq
-# snap for alignment - pick a good N50 to align to
-rule snap_index:
-
-# need to map, call and convert vcf to msa
-rule snap_map:
-
-
-
-
-
 
