@@ -60,15 +60,6 @@ properties:
       - script
       - levels
 
-  lineage:
-    type: object
-    properties:
-      levels:
-        type: integer
-        minimum: 1
-        maximum: 10
-        default: 1
-
   tsne:
     type: object
     properties:
@@ -79,6 +70,9 @@ properties:
       use_gpu:
         type: boolean
         default: false
+      device_id:
+        type: integer
+        default: 0
     required:
       - perplexity
 

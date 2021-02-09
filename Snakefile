@@ -211,7 +211,9 @@ rule generate_dot:
     params:
         dist_prefix = "output/all_dists",
         db_prefix = config["poppunk_db"],
-        perplexity = config['tsne']['perplexity']
+        perplexity = config['tsne']['perplexity'],
+        gpu = config["tsne"]["use_gpu"],
+        device_id = config["tsne"]["device_id"]
     threads:
         16
     log:
@@ -222,7 +224,8 @@ rule generate_dot:
     run:
         if config["tsne"]["use_gpu"]:
             shell("poppunk_sketch --query --ref-db " + params.db_prefix + "--query-db " + params.db_prefix + \
-                  "--output " + params.dist_prefix + " --read-k --use-gpu &> " + log.sketch_log)
+                  "--output " + params.dist_prefix + " --read-k --use-gpu --gpu-id " + \
+                  params.device_id + "&> " + log.sketch_log)
         else:
             shell("poppunk_sketch --query --ref-db " + params.db_prefix + "--query-db " + params.db_prefix + \
                   "--output " + params.dist_prefix + " --read-k --cpus " + threads + " &> " + log.sketch_log)

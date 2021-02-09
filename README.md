@@ -2,6 +2,8 @@
 
 Downstream analysis of [PopPUNK](https://www.poppunk.net/) results.
 
+[Further documentation](https://poppunk.readthedocs.io/en/latest/subclustering.html)
+
 ## Pipeline description
 
 The pipeline consists of the following steps:
@@ -38,6 +40,7 @@ conda create -n poppipe --file=environment.yml
 
 If the package cannot be found you will need to add the necessary channels:
 ```
+conda config --add channels r
 conda config --add channels defaults
 conda config --add channels bioconda
 conda config --add channels conda-forge
@@ -52,17 +55,10 @@ On a cluster or the cloud, you can use snakemake's built-in `--cluster` argument
 ```
 snakemake --cluster qsub -j 16 --use-conda
 ```
-See the [snakemake docs](https://snakemake.readthedocs.io/en/stable/executing/cluster-cloud.html) 
+See the [snakemake docs](https://snakemake.readthedocs.io/en/stable/executing/cluster-cloud.html)
 for more information on your cluster/cloud provider.
 
 ### Alternative runs
-
-For quick and dirty clustering and phylogenies using core distances from
-[pp-sketchlib](https://github.com/johnlees/pp-sketchlib) alone, run:
-```
-snakemake --cores <n_cores> --use-conda lineage_clust
-```
-
 To create a visualisation on [microreact](https://microreact.org/):
 ```
 snakemake --use-conda make_microreact
@@ -78,6 +74,11 @@ snakemake --use-conda make_microreact
 * `poppunk_rfile`: The `--rfile` used with PopPUNK, which lists sample names and files, one per line, tab separated.
 * `min_cluster_size`: The minimum size of a cluster to run the analysis on (recommended at least 6).
 
+### SKA configuration
+
+* `fastq_qual`: With read input, the `-q` option, which ignores k-mers with bases below this score.
+* `fastq_cov`: With read input, the `-c` option, which sets a minimum k-mer count.
+
 ### IQ-TREE configuration
 
 * `enabled`: Set to `false` to turn off ML tree generation, and use the NJ tree throughout.
@@ -89,9 +90,19 @@ snakemake --use-conda make_microreact
 * `levels`: Number of levels of recursive subclustering.
 * `script`: Location of the `run_fastbaps` script. Find by running `system.file("run_fastbaps", package = "fastbaps")` in R.
 
+### t-SNE configuration
 
+* `perplexity`: Perplexity parameter for t-SNE (between 5 and 50).
+* `use_gpu`: Whether to use a GPU for calculating all-vs-all distances.
+* `device_id`: Device ID, if using a GPU (default = 0).
+
+### Microreact configuration
+
+* `name`: Title of the Microreact to produce
+* `website`: Website link to give in Microreach
+* `email`: Contact email to list in Microreact
 ## Updating a run
 Running `snakemake` from the same directory will keep outputs where possible,
 so new additions will automatically be included.
 
-**TODO**: How to do this when adding new isolates 
+**TODO**: How to do this when adding new isolates
