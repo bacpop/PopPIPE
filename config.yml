@@ -20,7 +20,7 @@ fastbaps:
   # Number of hierarchical clustering levels
   levels: 2
   # Location of `run_fastbaps`.
-  # Find by running `system.file("run_fastbaps", package = "fastbaps")` in R. 
+  # Find by running `system.file("run_fastbaps", package = "fastbaps")` in R.
   script: /Library/Frameworks/R.framework/Versions/3.6/Resources/library/fastbaps/run_fastbaps
 
 # tsne options

@@ -95,7 +95,7 @@ rule sketchlib_dists:
 rule generate_nj:
     input:
         npy="output/strains/{strain}/dists.npy",
-        pkl="output/strains/{strain}/dists.pkl" 
+        pkl="output/strains/{strain}/dists.pkl"
     output:
         "output/strains/{strain}/njtree.nwk"
     group:
@@ -113,7 +113,7 @@ rule ska_index:
     output:
         "output/ska_index/{sample}.skf"
     log:
-        "logs/ska_index_{sample}.log" 
+        "logs/ska_index_{sample}.log"
     conda:
         config["poppipe_location"] + "/envs/ska.yml"
     shell:
@@ -128,7 +128,7 @@ rule ska_align:
     group:
         "align"
     log:
-        "logs/ska_align_{strain}.log" 
+        "logs/ska_align_{strain}.log"
     params:
         prefix="output/strains/{strain}/align"
     conda:
@@ -164,7 +164,7 @@ rule iq_tree:
 rule lineage_clust:
     input:
         npy="output/strains/{strain}/dists.npy",
-        pkl="output/strains/{strain}/dists.pkl" 
+        pkl="output/strains/{strain}/dists.pkl"
     output:
         "output/strains/{strain}/hclust.txt"
     group:
@@ -192,7 +192,7 @@ rule fastbaps:
         2
     shell:
         "{params.fb_script} -p 'baps' -i {input.align} -o {output} -l {params.levels} --phylogney={input.tree} -t {threads} > {log}"
-        
+
 # Visualisation below here:
 
 rule graft_tree:
@@ -256,7 +256,7 @@ rule make_microreact:
     group:
         "viz"
     script:
-        "{config[poppipe_location]}/scripts/make_microreact.py" 
+        "{config[poppipe_location]}/scripts/make_microreact.py"
 
 #TODO possible extension - use snap for when the input is fastq
 # snap for alignment - pick a good N50 to align to

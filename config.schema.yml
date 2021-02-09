@@ -7,7 +7,7 @@ type: object
 properties:
   poppipe_location:
     type: string
-  
+
   poppunk_rfile:
     type: string
   poppunk_clusters:
@@ -18,7 +18,7 @@ properties:
   min_cluster_size:
     type: integer
     minimum: 3
-  
+
   iqtree:
     type: object
     properties:
@@ -55,7 +55,7 @@ properties:
         maximum: 50
     required:
       - perplexity
-  
+
   microreact:
     type: object
     properties:
