@@ -9,6 +9,11 @@ poppunk_db: listeria
 # Minimum cluster size to subcluster
 min_cluster_size: 6
 
+# ska options for read sets with "ska fastq"
+ska:
+  fastq_qual: 20
+  fastq_cov: 4
+
 # IQ-TREE options
 iqtree:
   enabled: true
@@ -23,8 +28,14 @@ fastbaps:
   # Find by running `system.file("run_fastbaps", package = "fastbaps")` in R.
   script: /Library/Frameworks/R.framework/Versions/3.6/Resources/library/fastbaps/run_fastbaps
 
+# lineage_clust options
+lineage:
+  # Rank of lineage clustering
+  rank: 1
+
 # tsne options
 tsne:
+  use_gpu: false
   perplexity: 25
 
 # Microreact title, and your contact details
