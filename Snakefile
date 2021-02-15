@@ -22,6 +22,8 @@ clusters = pd.read_table(config["poppunk_clusters"], sep=",",).set_index("Taxon"
 included_strain_ids = list((clusters.Cluster.value_counts()[clusters.Cluster.value_counts() >= config["min_cluster_size"]]).index)
 included_samples = samples.loc[clusters.index[clusters.isin(included_strain_ids)["Cluster"]]]
 
+container: "docker://poppunk/poppipe:latest"
+
 # First rule is the default target
 rule cluster_summary:
     input:

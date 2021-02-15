@@ -32,7 +32,7 @@ conda install snakemake pandas
 ```
 
 Other dependencies will be automatically installed by conda the first time
-you run the pipeline. You can also install them yourself and omit the `-use-conda`
+you run the pipeline. You can also install them yourself and omit the `--use-conda`
 directive to snakemake:
 ```
 conda create -n poppipe --file=environment.yml
@@ -46,6 +46,18 @@ conda config --add channels bioconda
 conda config --add channels conda-forge
 ```
 
+### Running inside a container
+
+An alternative, if you are having trouble with the above, is to use the PopPIPE docker
+container. If you are comfortable running commands inside docker containers and mounting
+your external files, the whole pipeline is in the container available by running:
+```
+docker pull poppunk/poppipe:latest
+```
+
+You can also follow the above process and make a local clone of snakemake, and replace
+`--use-conda` with `--use-singularity`, which will automatically pull this container, and run
+each step inside it.
 ## Usage
 
 1. Modify `config.yml` as appropriate.
