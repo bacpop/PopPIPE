@@ -4,7 +4,7 @@ poppipe_location: .
 # Files output by the PopPUNK run
 poppunk_rfile: rlist.txt
 poppunk_clusters: listeria_clusters.csv
-poppunk_db: listeria
+poppunk_h5: listeria.h5
 
 # Minimum cluster size to subcluster
 min_cluster_size: 6

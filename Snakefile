@@ -8,6 +8,13 @@ min_version("5.3.0")
 configfile: "config.yml"
 validate(config, schema="config.schema.yml")
 
+# poppunk DB prefix
+prefix_match = re.match(r"^(.+)\.h5$", config["poppunk_h5"])
+if prefix_match:
+    db_prefix = prefix_match.group(1)
+else:
+    raise RuntimeError("PopPUNK DB is not a .h5 file")
+
 # table with sample, sequence, cluster
 samples = pd.read_table(config["poppunk_rfile"], header=None, index_col=0)
 clusters = pd.read_table(config["poppunk_clusters"], sep=",",).set_index("Taxon")
@@ -67,7 +74,7 @@ rule group_stragglers:
 # Use sketchlib to extract distances
 rule sketchlib_dists:
     input:
-        database = config["poppunk_db"] + ".h5",
+        database = config["poppunk_h5"],
         names = "output/strains/{strain}/names.txt"
     output:
         "output/strains/{strain}/dists.npy",
@@ -77,7 +84,7 @@ rule sketchlib_dists:
     log:
         "logs/{strain}_sketchlib.log"
     params:
-        db_prefix = config["poppunk_db"],
+        db_prefix = db_prefix,
         dist_prefix = "output/strains/{strain}/dists"
     threads:
         16
@@ -108,18 +115,18 @@ rule ska_index:
     output:
         "output/ska_index/{sample}.skf"
     params:
-        fastq_qual=config['iqtree']['fastq_cov'],
-        fastq_cov=config['iqtree']['fastq_qual']
+        fastq_qual=config['ska']['fastq_cov'],
+        fastq_cov=config['ska']['fastq_qual']
     log:
         "logs/ska_index_{sample}.log"
     conda:
         config["poppipe_location"] + "/envs/ska.yml"
     run:
-        if re.match(r"\.(fq|fastq)\.$", input.assembly):
-            shell("ska fastq -o output/ska_index/" + wildcards.sample + " -q " + params.fastq_qual + \
-                  " -c " + params.fastq_cov + " " + input.assembly + " > " + log)
+        if re.match(r"\.(fq|fastq)\.$", str(input.assembly)):
+            shell("ska fastq -o output/ska_index/" + str(wildcards.sample) + " -q " + str(params.fastq_qual) + \
+                  " -c " + str(params.fastq_cov) + " " + str(input.assembly) + " > " + str(log))
         else:
-            shell("ska fasta -o output/ska_index/" + wildcards.sample + " " + input.assembly + " > " + log)
+            shell("ska fasta -o output/ska_index/" + str(wildcards.sample) + " " + str(input.assembly) + " > " + str(log))
 
 rule ska_align:
     input:
@@ -201,7 +208,7 @@ rule graft_tree:
 
 rule generate_dot:
     input:
-        database = config["poppunk_db"] + ".h5"
+        database = config["poppunk_h5"]
     output:
         "output/all_dists.npy",
         "output/all_dists.pkl",
@@ -210,8 +217,8 @@ rule generate_dot:
         "viz"
     params:
         dist_prefix = "output/all_dists",
-        db_prefix = config["poppunk_db"],
-        perplexity = config['tsne']['perplexity'],
+        db_prefix = db_prefix,
+        perplexity = str(config['tsne']['perplexity']),
         gpu = config["tsne"]["use_gpu"],
         device_id = config["tsne"]["device_id"]
     threads:
@@ -223,15 +230,15 @@ rule generate_dot:
         config["poppipe_location"] + "/envs/poppunk.yml"
     run:
         if config["tsne"]["use_gpu"]:
-            shell("poppunk_sketch --query --ref-db " + params.db_prefix + "--query-db " + params.db_prefix + \
-                  "--output " + params.dist_prefix + " --read-k --use-gpu --gpu-id " + \
+            shell("poppunk_sketch --query --ref-db " + params.db_prefix + " --query-db " + params.db_prefix + \
+                  " --output " + params.dist_prefix + " --read-k --use-gpu --gpu-id " + \
                   params.device_id + "&> " + log.sketch_log)
         else:
-            shell("poppunk_sketch --query --ref-db " + params.db_prefix + "--query-db " + params.db_prefix + \
-                  "--output " + params.dist_prefix + " --read-k --cpus " + threads + " &> " + log.sketch_log)
+            shell("poppunk_sketch --query --ref-db " + params.db_prefix + " --query-db " + params.db_prefix + \
+                  " --output " + params.dist_prefix + " --read-k --cpus " + str(threads) + " &> " + log.sketch_log)
         shell("poppunk_tsne --distances " + params.dist_prefix + " --output output --perplexity " + \
               params.perplexity + " --verbosity 1 &> " + log.tsne_log)
-        os.rename("output/output_perplexity " + params.perplexity + "_accessory_tsne.dot",
+        os.rename("output/output_perplexity" + params.perplexity + "_accessory_tsne.dot",
                   output.tsne_out)
 
 

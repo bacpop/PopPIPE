@@ -12,7 +12,7 @@ properties:
     type: string
   poppunk_clusters:
     type: string
-  poppunk_db:
+  poppunk_h5:
     type: string
 
   min_cluster_size:
@@ -94,7 +94,7 @@ required:
   - poppipe_location
   - poppunk_rfile
   - poppunk_clusters
-  - poppunk_db
+  - poppunk_h5
   - iqtree
   - fastbaps
   - tsne

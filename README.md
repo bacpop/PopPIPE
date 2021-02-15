@@ -51,6 +51,10 @@ conda config --add channels conda-forge
 1. Modify `config.yml` as appropriate.
 2. Run `snakemake --cores <n_cores> --use-conda`.
 
+In particular, check the three `poppunk_` arguments, which should be set to the
+full path of the `--r-files` argument, strain clusters .csv file and `.h5` database file,
+from your PopPUNK run.
+
 On a cluster or the cloud, you can use snakemake's built-in `--cluster` argument:
 ```
 snakemake --cluster qsub -j 16 --use-conda
@@ -58,12 +62,18 @@ snakemake --cluster qsub -j 16 --use-conda
 See the [snakemake docs](https://snakemake.readthedocs.io/en/stable/executing/cluster-cloud.html)
 for more information on your cluster/cloud provider.
 
-### Alternative runs
-To create a visualisation on [microreact](https://microreact.org/):
+### Creating visualisations
+The default target is the first in the Snakefile: `cluster_summary`. This
+produces subclusters but no visualisations. To continue the run forward from here
+use the `microreact` target:
 ```
 snakemake --use-conda make_microreact
 ```
 
+This will create a phylogeny, embedding and format your strains and their subclusters
+for [microreact](https://microreact.org/) and save these files to the output. The phylogeny
+and clusters will be sent to microreact, and a link to your page will be output to the terminal
+and saved in `output/microreact_url.txt`.
 ## Config file
 
 ### PopPIPE configuration
