@@ -1,9 +1,8 @@
 # PopPIPE: Population analysis PIPEline 🛠🧬
 
-![Build and push Docker image](https://github.com/johnlees/PopPIPE/workflows/Build%20and%20push%20Docker%20image/badge.svg?branch=master)
+[![Build and push Docker image](https://github.com/johnlees/PopPIPE/workflows/Build%20and%20push%20Docker%20image/badge.svg?branch=master)](https://hub.docker.com/repository/docker/poppunk/poppipe)
 
-Downstream analysis of [PopPUNK](https://www.poppunk.net/) results. Produces subclusters and
-visualisations of all strains.
+Downstream analysis of [PopPUNK](https://www.poppunk.net/) results. Produces subclusters and visualisations of all strains.
 
 Further documentation can be found in the [PopPUNK docs](https://poppunk.readthedocs.io/en/latest/subclustering.html).
 
