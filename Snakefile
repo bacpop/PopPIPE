@@ -228,19 +228,8 @@ rule generate_dot:
         tsne_log = "logs/tsne.log"
     conda:
         config["poppipe_location"] + "/envs/poppunk.yml"
-    run:
-        if config["tsne"]["use_gpu"]:
-            shell("poppunk_sketch --query --ref-db " + params.db_prefix + " --query-db " + params.db_prefix + \
-                  " --output " + params.dist_prefix + " --read-k --use-gpu --gpu-id " + \
-                  params.device_id + "&> " + log.sketch_log)
-        else:
-            shell("poppunk_sketch --query --ref-db " + params.db_prefix + " --query-db " + params.db_prefix + \
-                  " --output " + params.dist_prefix + " --read-k --cpus " + str(threads) + " &> " + log.sketch_log)
-        shell("poppunk_tsne --distances " + params.dist_prefix + " --output output --perplexity " + \
-              params.perplexity + " --verbosity 1 &> " + log.tsne_log)
-        os.rename("output/output_perplexity" + params.perplexity + "_accessory_tsne.dot",
-                  output.tsne_out)
-
+    script:
+        "{config[poppipe_location]}/scripts/run_tsne.py"
 
 # use microreact api
 rule make_microreact:
