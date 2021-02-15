@@ -121,12 +121,8 @@ rule ska_index:
         "logs/ska_index_{sample}.log"
     conda:
         config["poppipe_location"] + "/envs/ska.yml"
-    run:
-        if re.match(r"\.(fq|fastq)\.$", str(input.assembly)):
-            shell("ska fastq -o output/ska_index/" + str(wildcards.sample) + " -q " + str(params.fastq_qual) + \
-                  " -c " + str(params.fastq_cov) + " " + str(input.assembly) + " > " + str(log))
-        else:
-            shell("ska fasta -o output/ska_index/" + str(wildcards.sample) + " " + str(input.assembly) + " > " + str(log))
+    script:
+        "{config[poppipe_location]}/scripts/run_ska_index.py"
 
 rule ska_align:
     input:
