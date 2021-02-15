@@ -65,8 +65,6 @@ ENV ENV_PREFIX $PROJECT_DIR/env
 RUN conda update --name base --channel defaults conda && \
     conda env create --prefix $ENV_PREFIX --file /tmp/environment.yml --force && \
     conda clean --all --yes
-# build and install extensions
-RUN conda activate $ENV_PREFIX && python setup.py install && conda deactivate
 
 # use an entrypoint script to insure conda environment is properly activated at runtime
 USER root

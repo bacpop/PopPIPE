@@ -1,8 +1,11 @@
 # PopPIPE: Population analysis PIPEline 🛠🧬
 
-Downstream analysis of [PopPUNK](https://www.poppunk.net/) results.
+![Build and push Docker image](https://github.com/johnlees/PopPIPE/workflows/Build%20and%20push%20Docker%20image/badge.svg?branch=master)
 
-[Further documentation](https://poppunk.readthedocs.io/en/latest/subclustering.html)
+Downstream analysis of [PopPUNK](https://www.poppunk.net/) results. Produces subclusters and
+visualisations of all strains.
+
+Further documentation can be found in the [PopPUNK docs](https://poppunk.readthedocs.io/en/latest/subclustering.html).
 
 ## Pipeline description
 
@@ -58,6 +61,8 @@ docker pull poppunk/poppipe:latest
 You can also follow the above process and make a local clone of snakemake, and replace
 `--use-conda` with `--use-singularity`, which will automatically pull this container, and run
 each step inside it.
+
+Use `--singularity-args` if you need to bind directories.
 ## Usage
 
 1. Modify `config.yml` as appropriate.
