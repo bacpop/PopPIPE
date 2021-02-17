@@ -1,9 +1,8 @@
 # PopPIPE: Population analysis PIPEline 🛠🧬
 
-![Build and push Docker image](https://github.com/johnlees/PopPIPE/workflows/Build%20and%20push%20Docker%20image/badge.svg?branch=master)
+[![Build and push Docker image](https://github.com/johnlees/PopPIPE/workflows/Build%20and%20push%20Docker%20image/badge.svg?branch=master)](https://hub.docker.com/repository/docker/poppunk/poppipe)
 
-Downstream analysis of [PopPUNK](https://www.poppunk.net/) results. Produces subclusters and
-visualisations of all strains.
+Downstream analysis of [PopPUNK](https://www.poppunk.net/) results. Produces subclusters and visualisations of all strains.
 
 Further documentation can be found in the [PopPUNK docs](https://poppunk.readthedocs.io/en/latest/subclustering.html).
 
@@ -91,6 +90,67 @@ This will create a phylogeny, embedding and format your strains and their subclu
 for [microreact](https://microreact.org/) and save these files to the output. The phylogeny
 and clusters will be sent to microreact, and a link to your page will be output to the terminal
 and saved in `output/microreact_url.txt`.
+
+## Updating a run with results from poppunk_assign
+
+You can use the helper script `poppipe_assign.py` to help you re-run after query assignment. For example, if you assigned to a database with:
+
+```
+poppunk_assign --db listeria_rlist --query qlist.txt --output listeria_qlist
+```
+
+Give the same arguments, and your config file to `python poppipe_assign.py`:
+
+```
+python poppipe_assign.py --db listeria_rlist  --query qlist.txt --output listeria_qlist --config config.yml
+```
+
+This will generate combined input files, and a new config file. Run snakemake again:
+
+```
+snakemake --configfile configv2rfmbr9.yml
+```
+
+Here, the first snakemake pipeline ran on four strains consisting of 83 samples:
+```
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	cluster_summary
+	4	fastbaps
+	4	generate_nj
+	4	iq_tree
+	4	ska_align
+	58	ska_index
+	4	sketchlib_dists
+	4	split_strains
+	83
+```
+
+The second one, with the new queries, had one more strain, and nineteen new samples to index:
+```
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	cluster_summary
+	5	fastbaps
+	5	generate_nj
+	5	iq_tree
+	5	ska_align
+	19	ska_index
+	5	sketchlib_dists
+	5	split_strains
+	50
+```
+
+**NB**: This will re-run all downstream steps for each strain, other than the `ska index` steps. If you have a small number of strains being changed this is likely to be inefficient. If you would like us to support this type of analysis please get in touch.
+
 ## Config file
 
 ### PopPIPE configuration
