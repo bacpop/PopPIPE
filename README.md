@@ -91,6 +91,43 @@ for [microreact](https://microreact.org/) and save these files to the output. Th
 and clusters will be sent to microreact, and a link to your page will be output to the terminal
 and saved in `output/microreact_url.txt`.
 
+## Config file
+
+### PopPIPE configuration
+
+* `script_location`: The `scripts/` directory, if not running from the root of this repository
+* `poppunk_db`: The PopPUNK HDF5 database file, without the `.h5` suffix.
+* `poppunk_clusters`: The PopPUNK cluster CSV file, usually `poppunk_db/poppunk_db_clusters.csv`.
+* `poppunk_rfile`: The `--rfile` used with PopPUNK, which lists sample names and files, one per line, tab separated.
+* `min_cluster_size`: The minimum size of a cluster to run the analysis on (recommended at least 6).
+
+### SKA configuration
+
+* `fastq_qual`: With read input, the `-q` option, which ignores k-mers with bases below this score.
+* `fastq_cov`: With read input, the `-c` option, which sets a minimum k-mer count.
+
+### IQ-TREE configuration
+
+* `enabled`: Set to `false` to turn off ML tree generation, and use the NJ tree throughout.
+* `mode`: Set to `full` to run with the specified model, set to `fast` to run using `--fast` (like fasttree).
+* `model`: A string for the `-m` parameter describing the model. Adding `+ASC` is recommended.
+
+### fastbaps configuration
+
+* `levels`: Number of levels of recursive subclustering.
+* `script`: Location of the `run_fastbaps` script. Find by running `system.file("run_fastbaps", package = "fastbaps")` in R.
+
+### t-SNE configuration
+
+* `perplexity`: Perplexity parameter for t-SNE (between 5 and 50).
+* `use_gpu`: Whether to use a GPU for calculating all-vs-all distances.
+* `device_id`: Device ID, if using a GPU (default = 0).
+
+### Microreact configuration
+
+* `name`: Title of the Microreact to produce
+* `website`: Website link to give in Microreach
+* `email`: Contact email to list in Microreact
 ## Updating a run with results from poppunk_assign
 
 You can use the helper script `poppipe_assign.py` to help you re-run after query assignment. For example, if you assigned to a database with:
@@ -150,46 +187,3 @@ Job counts:
 ```
 
 **NB**: This will re-run all downstream steps for each strain, other than the `ska index` steps. If you have a small number of strains being changed this is likely to be inefficient. If you would like us to support this type of analysis please get in touch.
-
-## Config file
-
-### PopPIPE configuration
-
-* `script_location`: The `scripts/` directory, if not running from the root of this repository
-* `poppunk_db`: The PopPUNK HDF5 database file, without the `.h5` suffix.
-* `poppunk_clusters`: The PopPUNK cluster CSV file, usually `poppunk_db/poppunk_db_clusters.csv`.
-* `poppunk_rfile`: The `--rfile` used with PopPUNK, which lists sample names and files, one per line, tab separated.
-* `min_cluster_size`: The minimum size of a cluster to run the analysis on (recommended at least 6).
-
-### SKA configuration
-
-* `fastq_qual`: With read input, the `-q` option, which ignores k-mers with bases below this score.
-* `fastq_cov`: With read input, the `-c` option, which sets a minimum k-mer count.
-
-### IQ-TREE configuration
-
-* `enabled`: Set to `false` to turn off ML tree generation, and use the NJ tree throughout.
-* `mode`: Set to `full` to run with the specified model, set to `fast` to run using `--fast` (like fasttree).
-* `model`: A string for the `-m` parameter describing the model. Adding `+ASC` is recommended.
-
-### fastbaps configuration
-
-* `levels`: Number of levels of recursive subclustering.
-* `script`: Location of the `run_fastbaps` script. Find by running `system.file("run_fastbaps", package = "fastbaps")` in R.
-
-### t-SNE configuration
-
-* `perplexity`: Perplexity parameter for t-SNE (between 5 and 50).
-* `use_gpu`: Whether to use a GPU for calculating all-vs-all distances.
-* `device_id`: Device ID, if using a GPU (default = 0).
-
-### Microreact configuration
-
-* `name`: Title of the Microreact to produce
-* `website`: Website link to give in Microreach
-* `email`: Contact email to list in Microreact
-## Updating a run
-Running `snakemake` from the same directory will keep outputs where possible,
-so new additions will automatically be included.
-
-**TODO**: How to do this when adding new isolates
