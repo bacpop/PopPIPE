@@ -33,7 +33,7 @@ rule cluster_summary:
     params:
         levels=config['fastbaps']['levels']
     script:
-       "{config[poppipe_location]}/scripts/number_clusters.py"
+       config["poppipe_location"] + "/scripts/number_clusters.py"
 
 rule split_strains:
     input:
@@ -108,7 +108,7 @@ rule generate_nj:
     conda:
         config["poppipe_location"] + "/envs/nj.yml"
     script:
-        "{config[poppipe_location]}/scripts/run_rapidnj.py"
+        config["poppipe_location"] + "/scripts/run_rapidnj.py"
 
 # ska for alignment
 rule ska_index:
@@ -124,7 +124,7 @@ rule ska_index:
     conda:
         config["poppipe_location"] + "/envs/ska.yml"
     script:
-        "{config[poppipe_location]}/scripts/run_ska_index.py"
+        config["poppipe_location"] + "/scripts/run_ska_index.py"
 
 rule ska_align:
     input:
@@ -165,7 +165,7 @@ rule iq_tree:
     threads:
         4
     script:
-        "{config[poppipe_location]}/scripts/run_iqtree.py"
+        config["poppipe_location"] + "/scripts/run_iqtree.py"
 
 # in tree + aln mode
 rule fastbaps:
@@ -202,7 +202,7 @@ rule graft_tree:
     conda:
         config["poppipe_location"] + "/envs/nj.yml"
     script:
-        "{config[poppipe_location]}/scripts/tree_graft.py"
+        config["poppipe_location"] + "/scripts/tree_graft.py"
 
 rule generate_dot:
     input:
@@ -227,7 +227,7 @@ rule generate_dot:
     conda:
         config["poppipe_location"] + "/envs/poppunk.yml"
     script:
-        "{config[poppipe_location]}/scripts/run_tsne.py"
+        config["poppipe_location"] + "/scripts/run_tsne.py"
 
 # use microreact api
 rule make_microreact:
@@ -244,5 +244,4 @@ rule make_microreact:
     group:
         "viz"
     script:
-        "{config[poppipe_location]}/scripts/make_microreact.py"
-
+        config["poppipe_location"] + "/scripts/make_microreact.py"
