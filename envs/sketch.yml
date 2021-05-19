@@ -1,4 +1,4 @@
 channels:
   - conda-forge
 dependencies:
-  - pp-sketchlib >=1.6.4
+  - pp-sketchlib >=1.7.0

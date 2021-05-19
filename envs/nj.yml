@@ -6,3 +6,4 @@ dependencies:
   - numpy =1.18
   - dendropy =4.4.0
   - rapidnj =v2.3.2
+  - pp-sketchlib >=1.7.0
