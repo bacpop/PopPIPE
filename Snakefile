@@ -186,7 +186,7 @@ rule fastbaps:
     threads:
         2
     shell:
-        "{params.fb_script} -p 'baps' -i {input.align} -o {output} -l {params.levels} --phylogney={input.tree} -t {threads} > {log}"
+        "{params.fb_script} -p 'baps' -i {input.align} -o {output} -l {params.levels} --phylogeny={input.tree} -t {threads} > {log}"
 
 # Visualisation below here:
 
