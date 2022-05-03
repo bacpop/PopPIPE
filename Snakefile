@@ -206,20 +206,23 @@ rule graft_tree:
 
 rule generate_dot:
     input:
-        database = config["poppunk_h5"]
+        config["poppunk_h5"]
     output:
         "output/mandrake.embedding.dot"
     group:
         "viz"
     params:
-        db_prefix = db_prefix,
         perplexity = str(config['tsne']['perplexity']),
         knn = str(config['tsne']['knn']),
         maxIter = str(config['tsne']['maxIter'])
+    log:
+        "logs/mandrake.log"
     conda:
         config["poppipe_location"] + "/envs/mandrake.yml"
-    script:
-        "mandrake --sketches -i {input.database} -o {params.prefix} --perplexity {params.perplexity} --kNN {params.knn} --maxIter {params.maxIter} --cpus {threads} --no-clustering &> {log}"
+    threads:
+        64
+    shell:
+        "mandrake --sketches {input} --output {output} --perplexity {params.perplexity} --kNN {params.knn} --maxIter {params.maxIter} --cpus {threads} --no-clustering &> {log}"
 
 # use microreact api
 rule make_microreact:
