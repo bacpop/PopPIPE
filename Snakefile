@@ -214,11 +214,11 @@ rule generate_dot:
         static="output/viz/mandrake.embedding_static.png",
         txt="output/viz/mandrake.embedding.txt",
         names="output/viz/mandrake.embedding.names.txt",
-        npz="output/viz/mandrake.embedding.npz",
+        npz="output/viz/mandrake.embedding.npz"
     group:
         "viz"
     params:
-        db_prefix = db_prefix
+        db_prefix = db_prefix,
         perplexity = str(config['tsne']['perplexity']),
         knn = str(config['tsne']['knn']),
         maxIter = str(config['tsne']['maxIter'])
