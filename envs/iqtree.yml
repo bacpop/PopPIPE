@@ -4,4 +4,4 @@ channels:
 dependencies:
   - iqtree =2.0.3
   - python =3.7
-  - dendropy =4.4.0
+  - ete3 =3.1.2

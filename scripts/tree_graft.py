@@ -1,5 +1,11 @@
 import dendropy
 
+def midpoint_root(infile, outfile):
+    from ete3 import Tree
+    t = Tree(infile)
+    t.set_outgroup(t.get_midpoint_outgroup())
+    t.write(format=5, outfile=outfile) # format 5: internal and leaf branches + leaf names
+
 fulltree = dendropy.Tree.get(path=snakemake.input.overall_tree,
                            schema="newick",
                            preserve_underscores=True)
@@ -35,14 +41,5 @@ fulltree.write(path=str(snakemake.output),
             schema="newick",
             suppress_rooting=True,
             unquoted_underscores=True)
-fulltree = dendropy.Tree.get(path=str(snakemake.output),
-                           schema="newick",
-                           preserve_underscores=True)
 
-# Midpoint seems to take two in dendropy
-fulltree.reroot_at_midpoint(update_bipartitions=True, suppress_unifurcations=False)
-fulltree.reroot_at_midpoint(update_bipartitions=True, suppress_unifurcations=False)
-fulltree.write(path=str(snakemake.output),
-            schema="newick",
-            suppress_rooting=True,
-            unquoted_underscores=True)
+midpoint_root(str(snakemake.output), str(snakemake.output))

@@ -2,7 +2,6 @@ import os, sys
 import numpy as np
 import subprocess
 import tempfile
-import dendropy
 
 import pp_sketchlib
 
