@@ -213,8 +213,8 @@ rule generate_dot:
         html="output/viz/mandrake.embedding.html",
         static="output/viz/mandrake.embedding_static.png",
         txt="output/viz/mandrake.embedding.txt",
-        names="output/viz/mandrake.embedding.names.txt",
-        npz="output/viz/mandrake.embedding.npz"
+        names="output/viz/mandrake.names.txt",
+        npz="output/viz/mandrake.npz"
     group:
         "viz"
     params:
@@ -229,7 +229,7 @@ rule generate_dot:
     threads:
         64
     shell:
-        "mkdir output/viz && "
+        "mkdir -p output/viz && "
         "mandrake --sketches {input} --output output/viz/mandrake --perplexity {params.perplexity} --kNN {params.knn} --maxIter {params.maxIter} --cpus {threads} --no-clustering &> {log}"
 
 # use microreact api
