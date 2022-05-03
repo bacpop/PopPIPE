@@ -15,3 +15,4 @@ dependencies:
   - pp-sketchlib >=1.6.5
   - poppunk >=2.3.0
   - r-fastbaps >=1.0.3
+  - mandrake >=1.2.1

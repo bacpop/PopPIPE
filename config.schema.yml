@@ -60,21 +60,24 @@ properties:
       - script
       - levels
 
-  tsne:
+  mandrake:
     type: object
     properties:
       perplexity:
         type: number
         minimum: 5
-        maximum: 50
-      use_gpu:
-        type: boolean
-        default: false
-      device_id:
-        type: integer
-        default: 0
+        maximum: 100
+      knn:
+        type: number
+        minimum: 2
+        maximum: 1000
+      maxIter:
+        type: number
+        minimum: 10000
+        default: 100000
     required:
       - perplexity
+      - knn
 
   microreact:
     type: object

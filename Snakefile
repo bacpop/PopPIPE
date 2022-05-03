@@ -208,33 +208,25 @@ rule generate_dot:
     input:
         database = config["poppunk_h5"]
     output:
-        "output/all_dists.npy",
-        "output/all_dists.pkl",
-        tsne_out="output/embedding.dot"
+        "output/mandrake.embedding.dot"
     group:
         "viz"
     params:
-        dist_prefix = "output/all_dists",
         db_prefix = db_prefix,
         perplexity = str(config['tsne']['perplexity']),
-        gpu = config["tsne"]["use_gpu"],
-        device_id = config["tsne"]["device_id"]
-    threads:
-        16
-    log:
-        sketch_log = "logs/all_query.log",
-        tsne_log = "logs/tsne.log"
+        knn = str(config['tsne']['knn']),
+        maxIter = str(config['tsne']['maxIter'])
     conda:
-        config["poppipe_location"] + "/envs/poppunk.yml"
+        config["poppipe_location"] + "/envs/mandrake.yml"
     script:
-        config["poppipe_location"] + "/scripts/run_tsne.py"
+        "mandrake --sketches -i {input.database} -o {params.prefix} --perplexity {params.perplexity} --kNN {params.knn} --maxIter {params.maxIter} --cpus {threads} --no-clustering &> {log}"
 
 # use microreact api
 rule make_microreact:
     input:
         tree="output/full_tree.nwk",
         clusters="output/all_clusters.txt",
-        dot="output/embedding.dot"
+        dot="output/mandrake.embedding.dot"
     output:
         "output/microreact_url.txt"
     params:

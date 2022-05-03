@@ -28,11 +28,11 @@ fastbaps:
   # Find by running `system.file("run_fastbaps", package = "fastbaps")` in R.
   script: /Library/Frameworks/R.framework/Versions/3.6/Resources/library/fastbaps/run_fastbaps
 
-# tsne options
+# mandrake options
 tsne:
+  knn: 50
   perplexity: 25
-  use_gpu: false
-  device_id: 0
+  maxIter: 100000
 
 # Microreact title, and your contact details
 microreact:
