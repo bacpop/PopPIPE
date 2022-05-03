@@ -243,7 +243,8 @@ rule make_microreact:
     params:
         microreact_name=config['microreact']['name'],
         microreact_email=config['microreact']['email'],
-        microreact_website=config['microreact']['website']
+        microreact_website=config['microreact']['website'],
+        microreact_token=config['microreact']['api_token']
     group:
         "viz"
     script:
