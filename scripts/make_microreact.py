@@ -2,9 +2,27 @@ import os, sys
 import pandas as pd
 from datetime import date
 import requests
+import json
+
+def make_request(payload, url, headers=None):
+    if headers != None:
+        r = requests.post(url, data=payload, headers=headers)
+    else:
+        r = requests.post(url, data=payload)
+    if r.ok:
+        json = r.json()
+    else:
+        if r.status_code == 400:
+            sys.stderr.write("Microreact API call failed with response " + r.json()['error'] + "\n")
+        else:
+            sys.stderr.write("Microreact API call failed with unknown response code " + str(r.status_code) + "\n")
+        sys.exit(1)
+    return json
 
 # Constants
-microreact_api_url = "https://microreact.org/api/project/"
+api_token = snakemake.params['microreact_token']
+microreact_api_convert_url = "https://microreact.org/api/schema/convert"
+microreact_api_new_url = "https://microreact.org/api/projects/create"
 description_string = "PopPIPE run on " + date.today().strftime("%Y-%b-%d %H:%M")
 
 # Format data
@@ -20,7 +38,7 @@ clusters.index.rename('id', inplace=True)
 clusters.rename(columns={i: i + "__autocolour" for i in clusters.columns}, inplace=True)
 csv_string = clusters.to_csv(None, sep=",", header=True, index=True)
 
-# Make request
+# Use API to convert to new JSON
 payload = {"name": snakemake.params['microreact_name'],
            "description": description_string,
            "email": snakemake.params['microreact_email'],
@@ -28,16 +46,15 @@ payload = {"name": snakemake.params['microreact_name'],
            "data": csv_string,
            "tree": tree_string,
            "dot": dot_string}
+new_json = make_request(payload, microreact_api_convert_url)
 
-r = requests.post(microreact_api_url, data = payload)
-if r.ok:
-    url = r.json()['url']
-    with open(snakemake.output[0], 'w') as url_file:
-        url_file.write(url)
-        url_file.write("\n")
-        print("Microreact: " + url + "\n")
-elif r.status_code == 400:
-    sys.stderr.write("Microreact API call failed with response " + r.json()['error'] + "\n")
-else:
-    sys.stderr.write("Microreact API call failed with unknown response code " + str(r.status_code) + "\n")
-    sys.exit(1)
+# Use this to create new microreact
+headers = {'Access-Token': api_token}
+create_request = make_request(json.dumps(new_json), microreact_api_new_url, headers)
+
+url = create_request.json()['url']
+with open(snakemake.output[0], 'w') as url_file:
+    url_file.write(url)
+    url_file.write("\n")
+    print("Microreact: " + url + "\n")
+

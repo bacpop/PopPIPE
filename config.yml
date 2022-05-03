@@ -39,3 +39,4 @@ microreact:
   name: Listeria PopPIPE
   website: https://www.poppunk.net
   email: poppunk@poppunk.net
+  api_token: a1b2c3d4  ## see https://docs.microreact.org/api/access-tokens
