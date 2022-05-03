@@ -39,6 +39,7 @@ clusters.rename(columns={i: i + "__autocolour" for i in clusters.columns}, inpla
 csv_string = clusters.to_csv(None, sep=",", header=True, index=True)
 
 # Use API to convert to new JSON
+headers = {"Content-type": "application/json; charset=UTF-8"}
 payload = {"name": snakemake.params['microreact_name'],
            "description": description_string,
            "email": snakemake.params['microreact_email'],
@@ -46,10 +47,10 @@ payload = {"name": snakemake.params['microreact_name'],
            "data": csv_string,
            "tree": tree_string,
            "dot": dot_string}
-new_json = make_request(payload, microreact_api_convert_url)
+new_json = make_request(payload, microreact_api_convert_url, headers)
 
 # Use this to create new microreact
-headers = {'Access-Token': api_token}
+headers['Access-Token'] = api_token
 create_request = make_request(json.dumps(new_json), microreact_api_new_url, headers)
 
 url = create_request.json()['url']
