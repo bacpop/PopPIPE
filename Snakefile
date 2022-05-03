@@ -208,10 +208,17 @@ rule generate_dot:
     input:
         config["poppunk_h5"]
     output:
-        "output/mandrake.embedding.dot"
+        dot="output/viz/mandrake.embedding.dot",
+        density="output/viz/mandrake.embedding_density.pdf",
+        html="output/viz/mandrake.embedding.html",
+        static="output/viz/mandrake.embedding_static.png",
+        txt="output/viz/mandrake.embedding.txt",
+        names="output/viz/mandrake.embedding.names.txt",
+        npz="output/viz/mandrake.embedding.npz",
     group:
         "viz"
     params:
+        db_prefix = db_prefix
         perplexity = str(config['tsne']['perplexity']),
         knn = str(config['tsne']['knn']),
         maxIter = str(config['tsne']['maxIter'])
@@ -222,14 +229,14 @@ rule generate_dot:
     threads:
         64
     shell:
-        "mandrake --sketches {input} --output {output} --perplexity {params.perplexity} --kNN {params.knn} --maxIter {params.maxIter} --cpus {threads} --no-clustering &> {log}"
+        "mandrake --sketches {input} --output viz/mandrake --perplexity {params.perplexity} --kNN {params.knn} --maxIter {params.maxIter} --cpus {threads} --no-clustering &> {log}"
 
 # use microreact api
 rule make_microreact:
     input:
         tree="output/full_tree.nwk",
         clusters="output/all_clusters.txt",
-        dot="output/mandrake.embedding.dot"
+        dot="output/viz/mandrake.embedding.dot"
     output:
         "output/microreact_url.txt"
     params:
