@@ -6,18 +6,17 @@ import json
 
 def make_request(payload, url, headers=None):
     if headers != None:
-        r = requests.post(url, data=payload, headers=headers)
+        r = requests.post(url, data=json.dumps(payload), headers=headers)
     else:
-        r = requests.post(url, data=payload)
-    if r.ok:
-        json = r.json()
-    else:
+        r = requests.post(url, data=json.dumps(payload))
+
+    if not r.ok:
         if r.status_code == 400:
-            sys.stderr.write("Microreact API call failed with response " + r.json()['error'] + "\n")
+            sys.stderr.write("Microreact API call failed with response " + r.text + "\n")
         else:
             sys.stderr.write("Microreact API call failed with unknown response code " + str(r.status_code) + "\n")
         sys.exit(1)
-    return json
+    return r
 
 # Constants
 api_token = snakemake.params['microreact_token']
@@ -51,7 +50,7 @@ new_json = make_request(payload, microreact_api_convert_url, headers)
 
 # Use this to create new microreact
 headers['Access-Token'] = api_token
-create_request = make_request(json.dumps(new_json), microreact_api_new_url, headers)
+create_request = make_request(json.dumps(new_json.text), microreact_api_new_url, headers)
 
 url = create_request.json()['url']
 with open(snakemake.output[0], 'w') as url_file:
