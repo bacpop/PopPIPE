@@ -239,7 +239,7 @@ rule make_microreact:
         clusters="output/all_clusters.txt",
         dot="output/viz/mandrake.embedding.dot"
     output:
-        url="output/microreact_url.txt"
+        url="output/microreact_url.txt",
         microreact="output/json.microreact"
     params:
         example_file=config["poppipe_location"] + "/microreact_example.pkl"
