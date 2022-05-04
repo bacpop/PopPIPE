@@ -242,7 +242,7 @@ rule make_microreact:
         url="output/microreact_url.txt",
         microreact="output/json.microreact"
     params:
-        example_file=config["poppipe_location"] + "/microreact_example.pkl"
+        example_file=config["poppipe_location"] + "/microreact_example.pkl",
         microreact_name=config['microreact']['name'],
         microreact_email=config['microreact']['email'],
         microreact_website=config['microreact']['website'],

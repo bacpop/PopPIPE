@@ -36,8 +36,8 @@ clusters.rename(columns={i: i + "__autocolour" for i in clusters.columns}, inpla
 csv_string = clusters.to_csv(None, sep=",", header=True, index=True)
 
 # Load example JSON to be modified
-with open(snakemake.params['example_file'], 'rb') as json_pickle:
-    pickle.load(json_pickle)
+with open(snakemake.params['example_file'], 'rb') as example_pickle:
+    json_pickle = pickle.load(example_pickle)
 
 json_pickle["files"]["data-file-1"]["blob"] = csv_string
 json_pickle["files"]["tree-file-1"]["blob"] = tree_string
@@ -59,11 +59,13 @@ headers = {"Content-type": "application/json; charset=UTF-8",
            "Access-Token": api_token}
 create_request = make_request(json.dumps(json_pickle), microreact_api_new_url, headers)
 
-url = create_request.json()['url']
-with open(snakemake.output['url'], 'w') as url_file, open(snakemake.output['microreact'], 'w') as json_file:
+with open(snakemake.output['microreact'], 'w') as json_file:
+    json_file.write(create_request.text)
+    json_file.write("\n")
+
+with open(snakemake.output['url'], 'w') as url_file:
+    url = create_request.json()['url']
     url_file.write(url)
     url_file.write("\n")
     print("Microreact: " + url + "\n")
 
-    json_file.write(create_request.text)
-    json_file.write("\n")
