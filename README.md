@@ -10,7 +10,7 @@ Further documentation can be found in the [PopPUNK docs](https://poppunk.readthe
 
 The pipeline consists of the following steps:
 - Split files into their [PopPUNK](https://www.poppunk.net/) strains.
-- Use [pp-sketchlib](https://github.com/johnlees/pp-sketchlib) to calculate core and accessory distances within each strain.
+- Use [pp-sketchlib](https://github.com/bacpop/pp-sketchlib) to calculate core and accessory distances within each strain.
 - Use core distances and [rapidnj](https://birc.au.dk/software/rapidnj/) to make a neighbour-joining tree.
 - (lineage_clust mode) Generate clusters from core distances with lineage clustering in PopPUNK.
 - Use [ska](https://github.com/simonrharris/SKA) to generate within-strain alignments.

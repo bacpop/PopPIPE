@@ -7,4 +7,4 @@ dependencies:
   - dendropy =4.4.0
   - ete3 =3.1.2
   - rapidnj =v2.3.2
-  - pp-sketchlib >=1.7.0
+  - pp-sketchlib >=2.0.0

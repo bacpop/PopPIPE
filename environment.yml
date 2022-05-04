@@ -12,7 +12,7 @@ dependencies:
   - dendropy >=4.4.0
   - ete3 >=3.1
   - ska >=1.0
-  - pp-sketchlib >=1.6.5
+  - pp-sketchlib >=2.0.0
   - poppunk >=2.3.0
   - r-fastbaps >=1.0.3
   - mandrake >=1.2.1

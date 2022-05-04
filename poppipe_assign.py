@@ -77,12 +77,12 @@ if __name__ == "__main__":
     output_prefix = re.match(h5_re, combined_db).group(1)
     query_prefix = args.output + "/" + os.path.basename(args.output)
 
-    join_cmd = "poppunk_sketch --join --ref-db " + ref_prefix + \
-               " --query-db " + query_prefix + " --output " + \
+    join_cmd = "sketchlib join " + ref_prefix + " " + \
+               query_prefix + " -o " + \
                output_prefix
     subprocess.run(join_cmd, shell=True, check=True)
     if args.recalculate_random:
-        subprocess.run("poppunk_sketch --add-random --ref-db" + \
+        subprocess.run("sketchlib add random " + \
                         output_prefix,
                        shell=True, check=True)
 

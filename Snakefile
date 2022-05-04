@@ -93,8 +93,8 @@ rule sketchlib_dists:
     conda:
         config["poppipe_location"] + "/envs/sketch.yml"
     shell:
-        "poppunk_sketch --query --ref-db {params.db_prefix} --query-db {params.db_prefix} --subset {input.names} "
-        "--output {params.dist_prefix} --read-k --cpus {threads} &> {log}"
+        "sketchlib query dist {params.db_prefix} {params.db_prefix} --subset {input.names} "
+        "-o {params.dist_prefix} --cpus {threads} &> {log}"
 
 # rapidnj
 rule generate_nj:

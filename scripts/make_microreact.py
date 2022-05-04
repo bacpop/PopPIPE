@@ -4,11 +4,8 @@ from datetime import date
 import requests
 import json
 
-def make_request(payload, url, headers=None):
-    if headers != None:
-        r = requests.post(url, data=json.dumps(payload), headers=headers)
-    else:
-        r = requests.post(url, data=json.dumps(payload))
+def make_request(payload, url, headers):
+    r = requests.post(url, data=payload, headers=headers)
 
     if not r.ok:
         if r.status_code == 400:
@@ -46,11 +43,11 @@ payload = {"name": snakemake.params['microreact_name'],
            "data": csv_string,
            "tree": tree_string,
            "dot": dot_string}
-new_json = make_request(payload, microreact_api_convert_url, headers)
+new_json = make_request(json.dumps(payload), microreact_api_convert_url, headers)
 
 # Use this to create new microreact
 headers['Access-Token'] = api_token
-create_request = make_request(json.dumps(new_json.text), microreact_api_new_url, headers)
+create_request = make_request(new_json.text, microreact_api_new_url, headers)
 
 url = create_request.json()['url']
 with open(snakemake.output[0], 'w') as url_file:
