@@ -1,6 +1,6 @@
-import os, sys
+import sys
 import pandas as pd
-from datetime import date
+from datetime import datetime
 import pickle
 import requests
 import json
@@ -20,7 +20,7 @@ def make_request(payload, url, headers):
 api_token = snakemake.params['microreact_token']
 microreact_api_convert_url = "https://microreact.org/api/schema/convert"
 microreact_api_new_url = "https://microreact.org/api/projects/create"
-description_string = "PopPIPE run on " + date.today().strftime("%Y-%b-%d %H:%M")
+description_string = "PopPIPE run on " + datetime.now().strftime("%Y-%b-%d %H:%M")
 
 # Format data
 with open(snakemake.input['tree'], 'r') as tree_file:
