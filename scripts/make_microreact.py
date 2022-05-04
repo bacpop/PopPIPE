@@ -1,6 +1,7 @@
 import os, sys
 import pandas as pd
 from datetime import date
+import pickle
 import requests
 import json
 
@@ -34,24 +35,35 @@ clusters.index.rename('id', inplace=True)
 clusters.rename(columns={i: i + "__autocolour" for i in clusters.columns}, inplace=True)
 csv_string = clusters.to_csv(None, sep=",", header=True, index=True)
 
-# Use API to convert to new JSON
-headers = {"Content-type": "application/json; charset=UTF-8"}
-payload = {"name": snakemake.params['microreact_name'],
-           "description": description_string,
-           "email": snakemake.params['microreact_email'],
-           "website": snakemake.params['microreact_website'],
-           "data": csv_string,
-           "tree": tree_string,
-           "dot": dot_string}
-new_json = make_request(json.dumps(payload), microreact_api_convert_url, headers)
+# Load example JSON to be modified
+with open(snakemake.params['example_file'], 'rb') as json_pickle:
+    pickle.load(json_pickle)
 
-# Use this to create new microreact
-headers['Access-Token'] = api_token
-create_request = make_request(new_json.text, microreact_api_new_url, headers)
+json_pickle["files"]["data-file-1"]["blob"] = csv_string
+json_pickle["files"]["tree-file-1"]["blob"] = tree_string
+json_pickle["files"]["network-file-1"] = {"id": "network-file-1",
+                                          "name": "network.dot",
+                                          "format": "text/vnd.graphviz",
+                                          "blob": dot_string}
+json_pickle["networks"]["network-1"] = {"title": "Network",
+                                        "file": "network-file-1",
+                                        "nodeField": "id"}
+json_pickle["meta"]["name"] = snakemake.params['microreact_name']
+json_pickle["meta"]["description"] = description_string
+json_pickle["meta"]["email"] = snakemake.params['microreact_email']
+json_pickle["meta"]["email"] = snakemake.params['microreact_website']
+
+
+# Use API to convert to new JSON
+headers = {"Content-type": "application/json; charset=UTF-8",
+           "Access-Token": api_token}
+create_request = make_request(json.dumps(json_pickle), microreact_api_new_url, headers)
 
 url = create_request.json()['url']
-with open(snakemake.output[0], 'w') as url_file:
+with open(snakemake.output['url'], 'w') as url_file, open(snakemake.output['microreact'], 'w') as json_file:
     url_file.write(url)
     url_file.write("\n")
     print("Microreact: " + url + "\n")
 
+    json_file.write(create_request.text)
+    json_file.write("\n")
