@@ -9,7 +9,6 @@ dependencies:
   - numpy
   - iqtree >=2.0.3
   - rapidnj >=v2.3.2
-  - dendropy >=4.4.0
   - ete3 >=3.1
   - ska >=1.0
   - pp-sketchlib >=2.0.0

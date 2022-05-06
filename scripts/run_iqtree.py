@@ -1,8 +1,9 @@
 import subprocess
 from shutil import copyfile
 
+from ete3 import Tree
+
 def midpoint_root(infile, outfile):
-    from ete3 import Tree
     t = Tree(infile)
     t.set_outgroup(t.get_midpoint_outgroup())
     t.write(format=5, outfile=outfile) # format 5: internal and leaf branches + leaf names

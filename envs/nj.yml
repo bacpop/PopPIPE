@@ -4,7 +4,6 @@ channels:
 dependencies:
   - python =3.7
   - numpy =1.18
-  - dendropy =4.4.0
   - ete3 =3.1.2
   - rapidnj =v2.3.2
   - pp-sketchlib >=2.0.0
