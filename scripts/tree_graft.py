@@ -9,8 +9,8 @@ def midpoint_root(infile, outfile):
 fulltree = Tree(snakemake.input.overall_tree)
 
 for (mltree_file, njtree_file) in zip(snakemake.input['ml_trees'], snakemake.input['nj_trees']):
-    mltree = Tree(path=mltree_file)
-    njtree = Tree(path=njtree_file)
+    mltree = Tree(mltree_file)
+    njtree = Tree(njtree_file)
     ml_length = 0
     nj_length = 0
     for node in mltree.traverse():
