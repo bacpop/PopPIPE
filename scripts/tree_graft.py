@@ -30,9 +30,10 @@ for (mltree_file, njtree_file) in zip(snakemake.input['ml_trees'], snakemake.inp
                 sys.stderr.write("Multiple samples with name " + sample.name + "\n")
                 sys.exit(1)
             else:
-                mltree.set_outgroup(sample.name)
-                top_node.add_child(mltree, dist=0)
+                top_node = top_node[0]
 
+            mltree.set_outgroup(sample.name)
+            top_node.add_child(mltree, dist=0)
             grafted = True
             break
     if not grafted:
