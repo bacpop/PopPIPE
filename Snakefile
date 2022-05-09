@@ -163,7 +163,7 @@ rule iq_tree:
     conda:
         config["poppipe_location"] + "/envs/iqtree.yml"
     threads:
-        4
+        16
     script:
         config["poppipe_location"] + "/scripts/run_iqtree.py"
 
