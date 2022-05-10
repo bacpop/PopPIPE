@@ -26,10 +26,10 @@ fastbaps:
   levels: 2
   # Location of `run_fastbaps`.
   # Find by running `system.file("run_fastbaps", package = "fastbaps")` in R.
-  script: /Library/Frameworks/R.framework/Versions/3.6/Resources/library/fastbaps/run_fastbaps
+  script: run_fastbaps
 
 # mandrake options
-tsne:
+mandrake:
   knn: 50
   perplexity: 25
   maxIter: 100000

@@ -17,6 +17,7 @@ The pipeline consists of the following steps:
 - Use [IQ-TREE](http://www.iqtree.org/) to generate an ML phylogeny using this alignment, and the NJ tree as a starting point.
 - Use [fastbaps](https://github.com/gtonkinhill/fastbaps) to generate subclusters which are partitions of the phylogeny.
 - Create an overall visualisation with both core and accessory distances, as in PopPUNK. The final tree consists of refining the NJ tree by grafting the maximum likelihood trees for subclusters to their matching nodes.
+- Use [microreact](https://www.microreact.org) to display the results.
 
 ### Example pipeline DAG
 
@@ -98,10 +99,10 @@ and saved in `output/microreact_url.txt`.
 
 ### PopPIPE configuration
 
-* `script_location`: The `scripts/` directory, if not running from the root of this repository
-* `poppunk_db`: The PopPUNK HDF5 database file, without the `.h5` suffix.
-* `poppunk_clusters`: The PopPUNK cluster CSV file, usually `poppunk_db/poppunk_db_clusters.csv`.
+* `poppipe_location`: The `scripts/` directory, if not running from the root of this repository
 * `poppunk_rfile`: The `--rfile` used with PopPUNK, which lists sample names and files, one per line, tab separated.
+* `poppunk_clusters`: The PopPUNK cluster CSV file, usually `poppunk_db/poppunk_db_clusters.csv`.
+* `poppunk_h5`: The PopPUNK HDF5 database file.
 * `min_cluster_size`: The minimum size of a cluster to run the analysis on (recommended at least 6).
 
 ### SKA configuration
@@ -122,8 +123,8 @@ and saved in `output/microreact_url.txt`.
 
 ### mandrake configuration
 
-* `perplexity`: Perplexity parameter for t-SNE (between 5 and 50).
 * `knn`: Number of nearest neighbours (at least two).
+* `perplexity`: Perplexity parameter for t-SNE (between 5 and 50).
 * `maxIter`: Iterations in the optimisation (at least 10000, default 100000).
 
 ### Microreact configuration

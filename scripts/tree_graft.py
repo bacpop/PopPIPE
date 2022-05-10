@@ -19,7 +19,7 @@ for (mltree_file, njtree_file) in zip(snakemake.input['ml_trees'], snakemake.inp
         nj_length += node.dist
     scale = nj_length / ml_length
     for node in mltree.traverse():
-        node.dist /= scale
+        node.dist *= scale
 
 
     grafted = False

@@ -184,7 +184,7 @@ rule fastbaps:
     conda:
         config["poppipe_location"] + "/envs/fastbaps.yml"
     threads:
-        2
+        4
     shell:
         "{params.fb_script} -p 'baps' -i {input.align} -o {output} -l {params.levels} --phylogeny={input.tree} -t {threads} > {log}"
 
