@@ -219,9 +219,9 @@ rule generate_dot:
         "viz"
     params:
         db_prefix = db_prefix,
-        perplexity = str(config['tsne']['perplexity']),
-        knn = str(config['tsne']['knn']),
-        maxIter = str(config['tsne']['maxIter'])
+        perplexity = str(config['mandrake']['perplexity']),
+        knn = str(config['mandrake']['knn']),
+        maxIter = str(config['mandrake']['maxIter'])
     log:
         "logs/mandrake.log"
     conda:
