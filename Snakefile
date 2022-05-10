@@ -93,8 +93,8 @@ rule sketchlib_dists:
     conda:
         config["poppipe_location"] + "/envs/sketch.yml"
     shell:
-        "poppunk_sketch --query --ref-db {params.db_prefix} --query-db {params.db_prefix} --subset {input.names} "
-        "--output {params.dist_prefix} --read-k --cpus {threads} &> {log}"
+        "sketchlib query dist {params.db_prefix} {params.db_prefix} --subset {input.names} "
+        "-o {params.dist_prefix} --cpus {threads} &> {log}"
 
 # rapidnj
 rule generate_nj:
@@ -163,7 +163,7 @@ rule iq_tree:
     conda:
         config["poppipe_location"] + "/envs/iqtree.yml"
     threads:
-        4
+        16
     script:
         config["poppipe_location"] + "/scripts/run_iqtree.py"
 
@@ -184,7 +184,7 @@ rule fastbaps:
     conda:
         config["poppipe_location"] + "/envs/fastbaps.yml"
     threads:
-        2
+        4
     shell:
         "{params.fb_script} -p 'baps' -i {input.align} -o {output} -l {params.levels} --phylogeny={input.tree} -t {threads} > {log}"
 
@@ -206,41 +206,49 @@ rule graft_tree:
 
 rule generate_dot:
     input:
-        database = config["poppunk_h5"]
+        config["poppunk_h5"]
     output:
-        "output/all_dists.npy",
-        "output/all_dists.pkl",
-        tsne_out="output/embedding.dot"
+        dot="output/viz/mandrake.embedding.dot",
+        density="output/viz/mandrake.embedding_density.pdf",
+        html="output/viz/mandrake.embedding.html",
+        static="output/viz/mandrake.embedding_static.png",
+        txt="output/viz/mandrake.embedding.txt",
+        names="output/viz/mandrake.names.txt",
+        npz="output/viz/mandrake.npz"
     group:
         "viz"
     params:
-        dist_prefix = "output/all_dists",
         db_prefix = db_prefix,
-        perplexity = str(config['tsne']['perplexity']),
-        gpu = config["tsne"]["use_gpu"],
-        device_id = config["tsne"]["device_id"]
-    threads:
-        16
+        perplexity = str(config['mandrake']['perplexity']),
+        knn = str(config['mandrake']['knn']),
+        maxIter = str(config['mandrake']['maxIter'])
     log:
-        sketch_log = "logs/all_query.log",
-        tsne_log = "logs/tsne.log"
+        "logs/mandrake.log"
     conda:
-        config["poppipe_location"] + "/envs/poppunk.yml"
-    script:
-        config["poppipe_location"] + "/scripts/run_tsne.py"
+        config["poppipe_location"] + "/envs/mandrake.yml"
+    threads:
+        64
+    shell:
+        "mkdir -p output/viz && "
+        "mandrake --sketches {input} --output output/viz/mandrake "
+        "--use-accessory --perplexity {params.perplexity} --kNN {params.knn} "
+        "--maxIter {params.maxIter} --cpus {threads} --no-clustering &> {log}"
 
 # use microreact api
 rule make_microreact:
     input:
         tree="output/full_tree.nwk",
         clusters="output/all_clusters.txt",
-        dot="output/embedding.dot"
+        dot="output/viz/mandrake.embedding.dot"
     output:
-        "output/microreact_url.txt"
+        url="output/microreact_url.txt",
+        microreact="output/json.microreact"
     params:
+        example_file=config["poppipe_location"] + "/microreact_example.pkl",
         microreact_name=config['microreact']['name'],
         microreact_email=config['microreact']['email'],
-        microreact_website=config['microreact']['website']
+        microreact_website=config['microreact']['website'],
+        microreact_token=config['microreact']['api_token']
     group:
         "viz"
     script:

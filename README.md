@@ -10,13 +10,14 @@ Further documentation can be found in the [PopPUNK docs](https://poppunk.readthe
 
 The pipeline consists of the following steps:
 - Split files into their [PopPUNK](https://www.poppunk.net/) strains.
-- Use [pp-sketchlib](https://github.com/johnlees/pp-sketchlib) to calculate core and accessory distances within each strain.
+- Use [pp-sketchlib](https://github.com/bacpop/pp-sketchlib) to calculate core and accessory distances within each strain.
 - Use core distances and [rapidnj](https://birc.au.dk/software/rapidnj/) to make a neighbour-joining tree.
 - (lineage_clust mode) Generate clusters from core distances with lineage clustering in PopPUNK.
 - Use [ska](https://github.com/simonrharris/SKA) to generate within-strain alignments.
 - Use [IQ-TREE](http://www.iqtree.org/) to generate an ML phylogeny using this alignment, and the NJ tree as a starting point.
 - Use [fastbaps](https://github.com/gtonkinhill/fastbaps) to generate subclusters which are partitions of the phylogeny.
 - Create an overall visualisation with both core and accessory distances, as in PopPUNK. The final tree consists of refining the NJ tree by grafting the maximum likelihood trees for subclusters to their matching nodes.
+- Use [microreact](https://www.microreact.org) to display the results.
 
 ### Example pipeline DAG
 
@@ -91,14 +92,17 @@ for [microreact](https://microreact.org/) and save these files to the output. Th
 and clusters will be sent to microreact, and a link to your page will be output to the terminal
 and saved in `output/microreact_url.txt`.
 
+**NB** From 2021-10-27 Microreact requires an API key for the final step to work. See the
+[microreact docs](https://docs.microreact.org/api/access-tokens) for instructions on how to generate one for your account.
+
 ## Config file
 
 ### PopPIPE configuration
 
-* `script_location`: The `scripts/` directory, if not running from the root of this repository
-* `poppunk_db`: The PopPUNK HDF5 database file, without the `.h5` suffix.
-* `poppunk_clusters`: The PopPUNK cluster CSV file, usually `poppunk_db/poppunk_db_clusters.csv`.
+* `poppipe_location`: The `scripts/` directory, if not running from the root of this repository
 * `poppunk_rfile`: The `--rfile` used with PopPUNK, which lists sample names and files, one per line, tab separated.
+* `poppunk_clusters`: The PopPUNK cluster CSV file, usually `poppunk_db/poppunk_db_clusters.csv`.
+* `poppunk_h5`: The PopPUNK HDF5 database file.
 * `min_cluster_size`: The minimum size of a cluster to run the analysis on (recommended at least 6).
 
 ### SKA configuration
@@ -117,17 +121,19 @@ and saved in `output/microreact_url.txt`.
 * `levels`: Number of levels of recursive subclustering.
 * `script`: Location of the `run_fastbaps` script. Find by running `system.file("run_fastbaps", package = "fastbaps")` in R.
 
-### t-SNE configuration
+### mandrake configuration
 
+* `knn`: Number of nearest neighbours (at least two).
 * `perplexity`: Perplexity parameter for t-SNE (between 5 and 50).
-* `use_gpu`: Whether to use a GPU for calculating all-vs-all distances.
-* `device_id`: Device ID, if using a GPU (default = 0).
+* `maxIter`: Iterations in the optimisation (at least 10000, default 100000).
 
 ### Microreact configuration
 
 * `name`: Title of the Microreact to produce
 * `website`: Website link to give in Microreach
 * `email`: Contact email to list in Microreact
+* `api_token`: The API token from your Microreact account
+
 ## Updating a run with results from poppunk_assign
 
 You can use the helper script `poppipe_assign.py` to help you re-run after query assignment. For example, if you assigned to a database with:

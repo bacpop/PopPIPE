@@ -1,4 +1,4 @@
 channels:
   - conda-forge
 dependencies:
-  - pp-sketchlib >=2.0.0
+  - mandrake >=1.2.1

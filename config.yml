@@ -26,16 +26,17 @@ fastbaps:
   levels: 2
   # Location of `run_fastbaps`.
   # Find by running `system.file("run_fastbaps", package = "fastbaps")` in R.
-  script: /Library/Frameworks/R.framework/Versions/3.6/Resources/library/fastbaps/run_fastbaps
+  script: run_fastbaps
 
-# tsne options
-tsne:
+# mandrake options
+mandrake:
+  knn: 50
   perplexity: 25
-  use_gpu: false
-  device_id: 0
+  maxIter: 100000
 
 # Microreact title, and your contact details
 microreact:
   name: Listeria PopPIPE
   website: https://www.poppunk.net
   email: poppunk@poppunk.net
+  api_token: a1b2c3d4  ## see https://docs.microreact.org/api/access-tokens
