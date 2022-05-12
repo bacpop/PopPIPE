@@ -1,6 +1,14 @@
 name: Build and push Docker image
 
 on:
+  push:
+    branches:
+      - 'master'
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - 'master'
   create:
     tags:
       - v*
@@ -11,6 +19,11 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: poppunk/poppipe
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx
@@ -22,10 +35,11 @@ jobs:
         password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
     - name: Build and push
       id: docker_build
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v3
       with:
-        push: true
-        tags: poppunk/poppipe:latest
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
         file: docker/Dockerfile
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
