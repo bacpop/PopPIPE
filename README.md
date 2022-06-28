@@ -38,7 +38,7 @@ Other dependencies will be automatically installed by conda the first time
 you run the pipeline. You can also install them yourself and omit the `--use-conda`
 directive to snakemake:
 ```
-conda create -n poppipe --file=environment.yml
+conda env create -n poppipe --file=environment.yml
 ```
 
 If the package cannot be found you will need to add the necessary channels:
