@@ -2,9 +2,9 @@
 poppipe_location: .
 
 # Files output by the PopPUNK run
-poppunk_rfile: rlist.txt
-poppunk_clusters: listeria_clusters.csv
-poppunk_h5: listeria.h5
+poppunk_rfile: ../PopPUNK/rfiles.txt
+poppunk_clusters: ../PopPUNK/mass_database/mass_database_clusters.csv
+poppunk_h5: ../PopPUNK/mass_database/mass_database.h5
 
 # Minimum cluster size to subcluster
 min_cluster_size: 6
@@ -13,6 +13,28 @@ min_cluster_size: 6
 ska:
   fastq_qual: 20
   fastq_cov: 4
+
+# gubbins options
+gubbins:
+  prefix: gubbins
+  tree-builder: iqtree
+  min-snps: 3
+  min-window-size: 100
+  max-window-size: 10000
+  iterations: 10
+  dir: /Users/wachsmannj/Documents/PopPIPE/output/strains/{strain}/
+
+# TODO: change dir to global path
+# transphylo options
+transphylo:
+  w_shape: 10
+  w_scale: 0.1
+  mcmcIterations: 1000
+  startNeg: 0.2739726 #100/365
+  startOff_r: 1
+  startOff_p: 0.5
+  startPi: 0.5
+  optiStart: 2
 
 # IQ-TREE options
 iqtree:

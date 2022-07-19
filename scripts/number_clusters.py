@@ -16,11 +16,14 @@ with open(snakemake.output[0], 'w') as outfile:
 
     # Read each fastbaps file
     for fb_file in snakemake.input:
+        print(snakemake.input)
+        print(fb_file)
         # Get PopPUNK cluster/strain number
         file_match = re.search(r'^output\/strains\/(\d+)\/fastbaps_clusters.txt$', fb_file)
         if file_match:
             cluster = file_match.group(1)
         else:
+            print("no match: ", file_match)
             sys.stderr.write("Error finding fastbaps output\n")
             sys.exit(1)
 
@@ -44,5 +47,3 @@ with open(snakemake.output[0], 'w') as outfile:
     for sample, cluster in excluded_clusters.iterrows():
         fields_out = [sample, str(cluster['Cluster'])] + ['NA'] * snakemake.params['levels']
         outfile.write(",".join(fields_out) + "\n")
-
-

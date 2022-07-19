@@ -48,6 +48,14 @@ properties:
       - mode
       - model
 
+  # transphylo:
+  #   type: object
+  #   properties:
+  #     script:
+  #       type: string
+  #   required:
+  #     -
+
   fastbaps:
     type: object
     properties:
