@@ -22,6 +22,7 @@ else:
 
 midpoint_root(snakemake.output.unrooted, snakemake.output.rooted)
 
+# Change any hashes in names back from underscores
 rooted_file=open(snakemake.output.rooted, 'r')
 og_files=open(snakemake.input.rfiles, 'r')
 
