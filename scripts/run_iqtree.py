@@ -21,3 +21,19 @@ else:
     copyfile(snakemake.input.start_tree, snakemake.output.unrooted)
 
 midpoint_root(snakemake.output.unrooted, snakemake.output.rooted)
+
+# Change any hashes in names back from underscores
+rooted_file=open(snakemake.output.rooted, 'r')
+og_files=open(snakemake.input.rfiles, 'r')
+
+for line in rooted_file:
+    for name in og_files:
+        og_name=name.split()[0]
+        if '#' in og_name:
+            new_name = og_name.replace('#', '_')
+            line = line.replace(new_name, og_name)
+rooted_file.close()
+
+file = open(snakemake.output.rooted, 'w')
+file.write(line)
+file.close()
