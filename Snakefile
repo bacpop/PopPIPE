@@ -150,7 +150,8 @@ rule ska_align:
 rule iq_tree:
     input:
         start_tree="output/strains/{strain}/njtree.nwk",
-        alignment="output/strains/{strain}/align_variants.aln"
+        alignment="output/strains/{strain}/align_variants.aln",
+        rfiles=config["poppunk_rfile"]
     output:
         rooted="output/strains/{strain}/besttree.nwk",
         # newrooted="output/strains/{strain}/besttree_new.nwk",
