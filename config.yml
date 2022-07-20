@@ -2,9 +2,9 @@
 poppipe_location: .
 
 # Files output by the PopPUNK run
-poppunk_rfile: ../PopPUNK/rfiles.txt
-poppunk_clusters: ../PopPUNK/mass_database/mass_database_clusters.csv
-poppunk_h5: ../PopPUNK/mass_database/mass_database.h5
+poppunk_rfile: ../PopPUNK/without_hash/rfiles.txt
+poppunk_clusters: ../PopPUNK/without_hash/mass_database/mass_database_clusters.csv
+poppunk_h5: ../PopPUNK/without_hash/mass_database/mass_database.h5
 
 # Minimum cluster size to subcluster
 min_cluster_size: 6
@@ -22,7 +22,7 @@ gubbins:
   min-window-size: 100
   max-window-size: 10000
   iterations: 10
-  dir: /Users/wachsmannj/Documents/PopPIPE/output/strains/{strain}/
+  dir: /Users/wachsmannj/Documents/pp/PopPIPE/output/strains/{strain}/
 
 # TODO: change dir to global path
 # transphylo options

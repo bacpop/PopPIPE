@@ -27,8 +27,8 @@ container: "docker://poppunk/poppipe:latest"
 # First rule is the default target
 rule cluster_summary:
     input:
-        # rds = expand("output/strains/{strain}/transphylo_results.rds", strain=included_strain_ids),
-        expand("output/strains/{strain}/fastbaps_clusters.txt", strain=included_strain_ids)
+        expand("output/strains/{strain}/transphylo_results.rds", strain=included_strain_ids),
+        # expand("output/strains/{strain}/fastbaps_clusters.txt", strain=included_strain_ids)
     output:
         "output/all_clusters.txt"
     params:
@@ -154,17 +154,18 @@ rule iq_tree:
         rfiles=config["poppunk_rfile"]
     output:
         rooted="output/strains/{strain}/besttree.nwk",
-        # newrooted="output/strains/{strain}/besttree_new.nwk",
         unrooted=temp("output/strains/{strain}/besttree.unrooted.treefile"),
         iqtree=temp("output/strains/{strain}/besttree.unrooted.iqtree"),
-        ckp=temp("output/strains/{strain}/besttree.unrooted.ckp.gz")
+        ckp=temp("output/strains/{strain}/besttree.unrooted.ckp.gz"),
     log:
         "output/strains/{strain}/besttree.unrooted.log"
     params:
         enabled=config['iqtree']['enabled'],
         mode=config['iqtree']['mode'],
         model=config['iqtree']['model'],
-        prefix="output/strains/{strain}/besttree.unrooted"
+        prefix="output/strains/{strain}/besttree.unrooted",
+        temp="output/strains/{strain}/temp_align_variants.aln"
+
     conda:
         config["poppipe_location"] + "/envs/iqtree.yml"
     threads:
@@ -176,6 +177,7 @@ rule iq_tree:
 # TODO: add gubbins.py parameter
 rule gubbins:
     input:
+        # alignment="output/strains/{strain}/align_variants.aln",
         alignment="output/strains/{strain}/align_variants.aln",
         start_tree="output/strains/{strain}/besttree.nwk"
     output:
@@ -194,7 +196,7 @@ rule gubbins:
         "gubbins"
     log:
         # "logs/gubbins_{strain}.log" TODO: make global
-        "/Users/wachsmannj/Documents/PopPIPE/logs/gubbins_{strain}.log"
+        "/Users/wachsmannj/Documents/pp/PopPIPE/logs/gubbins_{strain}.log"
     params:
         prefix=config['gubbins']['prefix'],
         tree_builder=config['gubbins']['tree-builder'],
@@ -222,7 +224,7 @@ rule gubbins:
 rule bactdating:
     input:
         final_tree="output/strains/{strain}/gubbins.final_tree.tre",
-        metadata="/Users/wachsmannj/Documents/poppipe/bactDating/meta_data_edited_new.csv"
+        metadata="/Users/wachsmannj/Documents/pp/meta_data_edited_new_strain_name.csv"
     output:
         rds="output/strains/{strain}/bactdate_data.rds",
         sorted="output/strains/{strain}/sorted.rds"
@@ -242,10 +244,10 @@ rule bactdating:
 rule transphylo:
     input:
         # metadata="../bactDating/meta_data_edited_new.csv",
-        rds="output/strains/{strain}/bactdate_data.rds",
-        sorted="output/strains/{strain}/sorted.rds"
-        # rds=expand("output/strains/{strain}/bactdate_data.rds", strain=included_strain_ids),
-        # sorted=expand("output/strains/{strain}/sorted.rds", strain=included_strain_ids)
+        # rds="output/strains/{strain}/bactdate_data.rds",
+        # sorted="output/strains/{strain}/sorted.rds"
+        rds=expand("output/strains/{strain}/bactdate_data.rds", strain=included_strain_ids),
+        sorted=expand("output/strains/{strain}/sorted.rds", strain=included_strain_ids)
     output:
         # expand("output/strains/{strain}/transphylo_results.rds", strain=included_strain_ids)
         "output/strains/{strain}/transmission_trees.pdf",
