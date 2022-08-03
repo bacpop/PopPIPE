@@ -27,8 +27,7 @@ container: "docker://poppunk/poppipe:latest"
 # First rule is the default target
 rule cluster_summary:
     input:
-        expand("output/strains/{strain}/transphylo_results.rds", strain=included_strain_ids),
-        # expand("output/strains/{strain}/fastbaps_clusters.txt", strain=included_strain_ids)
+        expand("output/strains/{strain}/fastbaps_clusters.txt", strain=included_strain_ids)
     output:
         "output/all_clusters.txt"
     params:
@@ -173,30 +172,16 @@ rule iq_tree:
     script:
         config["poppipe_location"] + "/scripts/run_iqtree.py"
 
-
-# TODO: add gubbins.py parameter
 rule gubbins:
     input:
-        # alignment="output/strains/{strain}/align_variants.aln",
         alignment="output/strains/{strain}/align_variants.aln",
         start_tree="output/strains/{strain}/besttree.nwk"
     output:
         final_tree="output/strains/{strain}/gubbins.final_tree.tre",
-        # branch_base_reconstruction="output/strains/{strain}/gubbins.branch_base_reconstruction.embl",
-        # filtered_polymorphic_sites_fasta="output/strains/{strain}/gubbins.filtered_polymorphic_sites.fasta",
-        # filtered_polymorphic_sites_phylip="output/strains/{strain}/gubbins.filtered_polymorphic_sites.phylip",
-        # log="output/strains/{strain}/gubbins.log",
-        # labelled_tree="output/strains/{strain}/gubbins.node_labelled.final_tree.tre",
-        # per_branch_statistics="output/strains/{strain}/gubbins.per_branch_statistics.csv",
-        # recombination_predictions_embl="output/strains/{strain}/gubbins.recombination_predictions.embl",
-        # recombination_predictions_gff="output/strains/{strain}/gubbins.recombination_predictions.gff",
-        # snp_distribution="output/strains/{strain}/gubbins.summery_of_snp_distribution.vcf"
-
     group:
         "gubbins"
-    log:
-        # "logs/gubbins_{strain}.log" TODO: make global
-        "/Users/wachsmannj/Documents/pp/PopPIPE/logs/gubbins_{strain}.log"
+    # log:
+    #     "logs/gubbins_{strain}.log"
     params:
         prefix=config['gubbins']['prefix'],
         tree_builder=config['gubbins']['tree-builder'],
@@ -212,19 +197,15 @@ rule gubbins:
         config["poppipe_location"] + "/envs/gubbins.yml"
     threads:
         4
-        # TODO: change log file to global path
     shell:
         "pushd {params.directory} &&\
-        run_gubbins.py {params.aln} --prefix {params.prefix} --starting-tree {params.btree} --threads {threads} > {log} \
+        run_gubbins.py {params.aln} --prefix {params.prefix} --starting-tree {params.btree} --threads {threads} \
         && popd"
-#
-# TODO: location metadata + change name of file, output location, save images (where), return tree and save in file.
-# Rscript --vanilla sillyScript.R iris.txt out.txt
-# TODO: make run_transphylo output the correct tree
+
 rule bactdating:
     input:
         final_tree="output/strains/{strain}/gubbins.final_tree.tre",
-        metadata="/Users/wachsmannj/Documents/pp/meta_data_edited_new_strain_name.csv"
+        metadata=config["transmission_metadata"]
     output:
         rds="output/strains/{strain}/bactdate_data.rds",
         sorted="output/strains/{strain}/sorted.rds"
@@ -237,22 +218,23 @@ rule bactdating:
     threads:
         4
     shell:
-        # "Rscript --vanilla scripts/run_bactDating.R output/strains/{wildcards.strain}/gubbins {input.final_tree} {input.metadata} {output.sorted} {output.rds} > {log}"
         "Rscript --vanilla scripts/run_bactDating.R output/strains/{wildcards.strain}/gubbins {input.metadata}  {output.sorted} {output.rds} > {log}"
 
-# TODO: make sure R scripts run, and all needed plots are saved
+rule transmission:
+    input:
+        expand("output/strains/{strain}/transphylo_results.rds", strain=included_strain_ids)
+    output:
+        "done.txt"
+    shell:
+        "touch done.txt"
+
+
 rule transphylo:
     input:
-        # metadata="../bactDating/meta_data_edited_new.csv",
-        # rds="output/strains/{strain}/bactdate_data.rds",
-        # sorted="output/strains/{strain}/sorted.rds"
-        rds=expand("output/strains/{strain}/bactdate_data.rds", strain=included_strain_ids),
-        sorted=expand("output/strains/{strain}/sorted.rds", strain=included_strain_ids)
+        rds="output/strains/{strain}/bactdate_data.rds",
+        sorted="output/strains/{strain}/sorted.rds"
     output:
-        # expand("output/strains/{strain}/transphylo_results.rds", strain=included_strain_ids)
-        "output/strains/{strain}/transmission_trees.pdf",
-        "output/strains/{strain}/transphylo_results.rds"
-
+        rds="output/strains/{strain}/transphylo_results.rds"
     group:
         "outbreak"
     params:
@@ -264,25 +246,21 @@ rule transphylo:
         startOff_p=config['transphylo']['startOff_p'],
         startPi=config['transphylo']['startPi'],
         optiStart=config['transphylo']['optiStart'],
-        # gubbins=expand("output/strains/{strain}/gubbins", strain=included_strain_ids)
+        dateT=config['transphylo']['dateT'],
         gubbins="output/strains/{strain}/gubbins"
     log:
-        # expand("logs/transphylo_{strain}.log", strain=included_strain_ids)
         "logs/transphylo_{strain}.log"
     conda:
         config["poppipe_location"] + "/envs/transphylo.yml"
     threads:
         4
     shell:
-        # TODO: global path
-        # "Rscript --vanilla " + config["poppipe_location"] + "scripts/run_transPhylo.R output/strains/{wildcards.strain}/gubbins {input.metadata} {output} > {log}"
-        "Rscript --vanilla scripts/run_transPhylo.R \
-        --rds {input.rds} --sorted {input.sorted} --output {output}\
+        "Rscript --vanilla scripts/run_transPhylo.R --rds {input.rds} --sorted {input.sorted} --output {output}\
         --gubbins {params.gubbins} --wshape {params.w_shape} \
         --wscale {params.w_scale} --mcmcIterations {params.mcmcIterations} \
         --startNeg {params.startNeg} --startOffr {params.startOff_r} \
         --startOffp {params.startOff_p} --startPi {params.startPi} \
-        --optiStart {params.optiStart} > {log}"
+        --optiStart {params.optiStart} --dateT {params.dateT} > {log}"
 
 # in tree + aln mode
 rule fastbaps:
@@ -306,7 +284,6 @@ rule fastbaps:
         "{params.fb_script} -p 'baps' -i {input.align} -o {output} -l {params.levels} --phylogeny={input.tree} -t {threads} > {log}"
 
 # Visualisation below here:
-
 rule graft_tree:
     input:
         ml_trees=expand("output/strains/{strain}/besttree.nwk", strain=included_strain_ids),

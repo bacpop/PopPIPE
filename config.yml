@@ -5,7 +5,8 @@ poppipe_location: .
 poppunk_rfile: ../PopPUNK/without_hash/rfiles.txt
 poppunk_clusters: ../PopPUNK/without_hash/mass_database/mass_database_clusters.csv
 poppunk_h5: ../PopPUNK/without_hash/mass_database/mass_database.h5
-
+transmission_metadata: "meta_data_edited_new_strain_name.csv"
+# transmission_metadata: /Users/wachsmannj/Documents/pp/meta_data_edited_new_strain_name.csv
 # Minimum cluster size to subcluster
 min_cluster_size: 6
 
@@ -22,9 +23,8 @@ gubbins:
   min-window-size: 100
   max-window-size: 10000
   iterations: 10
-  dir: /Users/wachsmannj/Documents/pp/PopPIPE/output/strains/{strain}/
+  dir: output/strains/{strain}/
 
-# TODO: change dir to global path
 # transphylo options
 transphylo:
   w_shape: 10
@@ -35,6 +35,7 @@ transphylo:
   startOff_p: 0.5
   startPi: 0.5
   optiStart: 2
+  dateT: 2008.01
 
 # IQ-TREE options
 iqtree:
