@@ -16,8 +16,6 @@ with open(snakemake.output[0], 'w') as outfile:
 
     # Read each fastbaps file
     for fb_file in snakemake.input:
-        print(snakemake.input)
-        print(fb_file)
         # Get PopPUNK cluster/strain number
         file_match = re.search(r'^output\/strains\/(\d+)\/fastbaps_clusters.txt$', fb_file)
         if file_match:

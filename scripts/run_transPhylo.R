@@ -13,7 +13,7 @@ option_list <- list(
   make_option("--sorted", action="store"),
   make_option("--output", action="store"),
   make_option("--gubbins", action="store"),
-  
+
   make_option("--wshape", type="double"),
   make_option("--wscale", type="double"),
   make_option("--mcmcIterations", type="integer"),
@@ -21,23 +21,21 @@ option_list <- list(
   make_option("--startOffr", type="double"),
   make_option("--startOffp", type="double"),
   make_option("--startPi", type="double"),
-  make_option("--optiStart", type="double"),
-  make_option("--dateT", type="double")
+  make_option("--optiStart", type="double")
 )
 
 opt <- parse_args(OptionParser(option_list=option_list))
 
-# TODO: transmission plot
-r_file <- gsub(" ", "", paste("/Users/wachsmannj/Documents/pp/PopPIPE/", opt$rds))
-bactdate_data <- readRDS(r_file)
+bactdate_data <- readRDS(opt$rds)
 
 # start with transPhylo:
 dates <- readRDS(opt$sorted)
 max_date = max(na.omit(dates))
 ptree <- ptreeFromPhylo(bactdate_data$tree, dateLastSample = max_date)
+dateT <- max_date + 0.1
 
 results <- inferTTree(ptree,
-                      w.shape = opt$wshape, 
+                      w.shape = opt$wshape,
                       w.scale = opt$wscale,
                       mcmcIterations = opt$mcmcIterations,
                       startNeg = opt$startNeg,
@@ -45,7 +43,7 @@ results <- inferTTree(ptree,
                       startOff.p = opt$startOffp,
                       startPi = opt$startPi,
                       optiStart = opt$optiStart,
-                      dateT = opt$dateT)
+                      dateT = dateT)
 
 mcmcpath <- paste(path_dir(opt$rds),"MCMC_trace.pdf", sep = "/")
 

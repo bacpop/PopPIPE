@@ -6,7 +6,7 @@ poppunk_rfile: ../PopPUNK/without_hash/rfiles.txt
 poppunk_clusters: ../PopPUNK/without_hash/mass_database/mass_database_clusters.csv
 poppunk_h5: ../PopPUNK/without_hash/mass_database/mass_database.h5
 transmission_metadata: "meta_data_edited_new_strain_name.csv"
-# transmission_metadata: /Users/wachsmannj/Documents/pp/meta_data_edited_new_strain_name.csv
+
 # Minimum cluster size to subcluster
 min_cluster_size: 6
 
@@ -18,24 +18,22 @@ ska:
 # gubbins options
 gubbins:
   prefix: gubbins
-  tree-builder: iqtree
-  min-snps: 3
-  min-window-size: 100
-  max-window-size: 10000
+  tree_builder: iqtree
+  min_snps: 3
+  min_window_size: 100
+  max_window_size: 10000
   iterations: 10
-  dir: output/strains/{strain}/
 
 # transphylo options
 transphylo:
   w_shape: 10
   w_scale: 0.1
   mcmcIterations: 1000
-  startNeg: 0.2739726 #100/365
+  startNeg: 0.1
   startOff_r: 1
   startOff_p: 0.5
   startPi: 0.5
   optiStart: 2
-  dateT: 2008.01
 
 # IQ-TREE options
 iqtree:

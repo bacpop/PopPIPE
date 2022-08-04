@@ -1,6 +1,6 @@
 import subprocess
 from shutil import copyfile
-from pandas import *
+from pandas import read_table
 import os
 
 from ete3 import Tree
@@ -23,8 +23,8 @@ else:
     copyfile(snakemake.input.start_tree, snakemake.output.unrooted)
 
 midpoint_root(snakemake.output.unrooted, snakemake.output.rooted)
-#
-# # Change any hashes in names back from underscores
+
+# Change any hashes in names back from underscores
 rooted_file=open(snakemake.output.rooted, 'r')
 samples = read_table(snakemake.input.rfiles, header=None, sep='\t')
 og_files = samples.iloc[:, 0].values.tolist()
@@ -40,26 +40,29 @@ rooted_file.close()
 file = open(snakemake.output.rooted, 'w')
 file.write(line)
 file.close()
-# -----------------------------------------------------------------------------
-# # change align_variants.aln
-# align_file=open(snakemake.input.alignment, 'r')
-# new_align_file = open(snakemake.params.temp, 'w')
-# for line in align_file:
-#     line=line.strip()
-#     if ">" in line:
-#         for name in og_files:
-#             og_name=name.split()[0]
-#             if '#' in og_name:
-#                 new_name = og_name.replace('#', '_')
-#                 line = line.replace(new_name, og_name)
-#         new_align_file.write(line + '\n')
-#         # new_align_file.write('\n')
-#     else:
-#         new_align_file.write(line + '\n')
-#         # new_align_file.write('\n')
-# new_align_file.close()
-#
-# # os.remove(snakemake.input.alignment)
-# os.rename(snakemake.params.temp ,snakemake.input.alignment)
-# # delete align_variants
-# # rename temp_align_variants to align_variants
+
+# change align_variants.aln
+new_names = []
+replacement_needed = False
+for name in og_files:
+    og_name=name.split()[0]
+    if '#' in og_name:
+        new_names.append(og_name.replace('#', '_'))
+        replacement_needed = True
+    else:
+        new_names.append(og_name)
+
+if replacement_needed:
+    align_file=open(snakemake.input.alignment, 'r')
+    new_file_name = snakemake.input.alignment.replace('align_variants.aln', 'temp_align_variants.aln')
+    new_align_file = open(snakemake.params.temp, 'w')
+    new_align_file = open(new_file_name, 'w')
+    for line in align_file:
+        line=line.strip()
+        if ">" in line:
+            new_align_file.write(">" + new_names.pop(0) + '\n')
+        else:
+            new_align_file.write(line + '\n')
+    new_align_file.close()
+    align_file.close()
+    os.rename(new_file_name, snakemake.input.alignment)

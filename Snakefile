@@ -154,16 +154,14 @@ rule iq_tree:
     output:
         rooted="output/strains/{strain}/besttree.nwk",
         unrooted=temp("output/strains/{strain}/besttree.unrooted.treefile"),
-        iqtree=temp("output/strains/{strain}/besttree.unrooted.iqtree"),
-        ckp=temp("output/strains/{strain}/besttree.unrooted.ckp.gz"),
+        iqtree=temp("output/strains/{strain}/besttree.unrooted.iqtree")
     log:
         "output/strains/{strain}/besttree.unrooted.log"
     params:
         enabled=config['iqtree']['enabled'],
         mode=config['iqtree']['mode'],
         model=config['iqtree']['model'],
-        prefix="output/strains/{strain}/besttree.unrooted",
-        temp="output/strains/{strain}/temp_align_variants.aln"
+        prefix="output/strains/{strain}/besttree.unrooted"
 
     conda:
         config["poppipe_location"] + "/envs/iqtree.yml"
@@ -180,16 +178,15 @@ rule gubbins:
         final_tree="output/strains/{strain}/gubbins.final_tree.tre",
     group:
         "gubbins"
-    # log:
-    #     "logs/gubbins_{strain}.log"
+    log:
+        "../../../logs/gubbins_{strain}.log"
     params:
         prefix=config['gubbins']['prefix'],
-        tree_builder=config['gubbins']['tree-builder'],
-        min_snp=config['gubbins']['min-snps'],
-        min_window=config['gubbins']['min-window-size'],
-        max_window=config['gubbins']['max-window-size'],
+        tree_builder=config['gubbins']['tree_builder'],
+        min_snp=config['gubbins']['min_snps'],
+        min_window=config['gubbins']['min_window_size'],
+        max_window=config['gubbins']['max_window_size'],
         iterations=config['gubbins']['iterations'],
-        directory=config['gubbins']['dir'],
         aln="align_variants.aln",
         btree="besttree.nwk"
 
@@ -198,8 +195,12 @@ rule gubbins:
     threads:
         4
     shell:
-        "pushd {params.directory} &&\
-        run_gubbins.py {params.aln} --prefix {params.prefix} --starting-tree {params.btree} --threads {threads} \
+        "pushd output/strains/{wildcards.strain}/ && \
+        run_gubbins.py {params.aln} --prefix {params.prefix} \
+        --starting-tree {params.btree} --tree-builder {params.tree_builder} \
+        --min-snps {params.min_snp} --min-window-size {params.min_window} \
+        --max-window-size {params.max_window} --iterations {params.iterations} \
+        --threads {threads} > {log} \
         && popd"
 
 rule bactdating:
@@ -218,8 +219,9 @@ rule bactdating:
     threads:
         4
     shell:
-        "Rscript --vanilla scripts/run_bactDating.R output/strains/{wildcards.strain}/gubbins {input.metadata}  {output.sorted} {output.rds} > {log}"
+        "Rscript --vanilla scripts/run_bactDating.R output/strains/{wildcards.strain}/gubbins {input.metadata} {output.sorted} {output.rds} > {log}"
 
+# dummy target rule
 rule transmission:
     input:
         expand("output/strains/{strain}/transphylo_results.rds", strain=included_strain_ids)
@@ -227,7 +229,6 @@ rule transmission:
         "done.txt"
     shell:
         "touch done.txt"
-
 
 rule transphylo:
     input:
@@ -246,7 +247,6 @@ rule transphylo:
         startOff_p=config['transphylo']['startOff_p'],
         startPi=config['transphylo']['startPi'],
         optiStart=config['transphylo']['optiStart'],
-        dateT=config['transphylo']['dateT'],
         gubbins="output/strains/{strain}/gubbins"
     log:
         "logs/transphylo_{strain}.log"
@@ -260,7 +260,7 @@ rule transphylo:
         --wscale {params.w_scale} --mcmcIterations {params.mcmcIterations} \
         --startNeg {params.startNeg} --startOffr {params.startOff_r} \
         --startOffp {params.startOff_p} --startPi {params.startPi} \
-        --optiStart {params.optiStart} --dateT {params.dateT} > {log}"
+        --optiStart {params.optiStart} > {log}"
 
 # in tree + aln mode
 rule fastbaps:
@@ -321,7 +321,7 @@ rule generate_dot:
     conda:
         config["poppipe_location"] + "/envs/mandrake.yml"
     threads:
-        4
+        64
     shell:
         "mkdir -p output/viz && "
         "mandrake --sketches {input} --output output/viz/mandrake "

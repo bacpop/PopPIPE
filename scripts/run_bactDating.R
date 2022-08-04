@@ -28,7 +28,7 @@ merged <- merged[match(tips$Strain.Name, merged$Strain.Name),]
 
 sorted_dates = merged$Year.of.Isolation
 saveRDS(sorted_dates, file = args[3])
-sorted_dates
+
 # does the actual bactdating: date the nodes of the tree
 rooted = initRoot(tree, sorted_dates)
 # r = roottotip(rooted, sorted_dates)
