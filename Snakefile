@@ -32,6 +32,8 @@ rule cluster_summary:
         "output/all_clusters.txt"
     params:
         levels=config['fastbaps']['levels']
+    log:
+        "logs/cluster_summary.log"
     script:
        config["poppipe_location"] + "/scripts/number_clusters.py"
 
@@ -89,7 +91,7 @@ rule sketchlib_dists:
         db_prefix = db_prefix,
         dist_prefix = "output/strains/{strain}/dists"
     threads:
-        16
+        4
     conda:
         config["poppipe_location"] + "/envs/sketch.yml"
     shell:
@@ -102,7 +104,7 @@ rule generate_nj:
         npy="output/strains/{strain}/dists.npy",
         pkl="output/strains/{strain}/dists.pkl"
     output:
-        "output/strains/{strain}/njtree.nwk"
+        start_tree="output/strains/{strain}/njtree.nwk"
     group:
         "quicktree"
     conda:
@@ -131,7 +133,7 @@ rule ska_align:
         ska=expand("output/ska_index/{sample}.skf", sample=included_samples.index),
         samples="output/strains/{strain}/ska_index.txt"
     output:
-        "output/strains/{strain}/align_variants.aln"
+        alignment=("output/strains/{strain}/align_variants.aln")
     group:
         "align"
     log:
@@ -152,8 +154,7 @@ rule iq_tree:
     output:
         rooted="output/strains/{strain}/besttree.nwk",
         unrooted=temp("output/strains/{strain}/besttree.unrooted.treefile"),
-        iqtree=temp("output/strains/{strain}/besttree.unrooted.iqtree"),
-        ckp=temp("output/strains/{strain}/besttree.unrooted.ckp.gz")
+        iqtree=temp("output/strains/{strain}/besttree.unrooted.iqtree")
     log:
         "output/strains/{strain}/besttree.unrooted.log"
     params:
@@ -161,12 +162,106 @@ rule iq_tree:
         mode=config['iqtree']['mode'],
         model=config['iqtree']['model'],
         prefix="output/strains/{strain}/besttree.unrooted"
+
     conda:
         config["poppipe_location"] + "/envs/iqtree.yml"
     threads:
-        16
+        4
     script:
         config["poppipe_location"] + "/scripts/run_iqtree.py"
+
+rule gubbins:
+    input:
+        alignment="output/strains/{strain}/align_variants.aln",
+        start_tree="output/strains/{strain}/besttree.nwk"
+    output:
+        final_tree="output/strains/{strain}/gubbins.final_tree.tre",
+    group:
+        "gubbins"
+    log:
+        "../../../logs/gubbins_{strain}.log"
+    params:
+        prefix=config['gubbins']['prefix'],
+        tree_builder=config['gubbins']['tree_builder'],
+        min_snp=config['gubbins']['min_snps'],
+        min_window=config['gubbins']['min_window_size'],
+        max_window=config['gubbins']['max_window_size'],
+        iterations=config['gubbins']['iterations'],
+        aln="align_variants.aln",
+        btree="besttree.nwk"
+
+    conda:
+        config["poppipe_location"] + "/envs/gubbins.yml"
+    threads:
+        4
+    shell:
+        "pushd output/strains/{wildcards.strain}/ && \
+        run_gubbins.py {params.aln} --prefix {params.prefix} \
+        --starting-tree {params.btree} --tree-builder {params.tree_builder} \
+        --min-snps {params.min_snp} --min-window-size {params.min_window} \
+        --max-window-size {params.max_window} --iterations {params.iterations} \
+        --threads {threads} > {log} \
+        && popd"
+
+rule bactdating:
+    input:
+        final_tree="output/strains/{strain}/gubbins.final_tree.tre",
+        metadata=config["transmission_metadata"]
+    output:
+        rds="output/strains/{strain}/bactdate_data.rds",
+        sorted="output/strains/{strain}/sorted.rds"
+    group:
+        "outbreak"
+    log:
+        "logs/bactdating_{strain}.log"
+    conda:
+        config["poppipe_location"] + "/envs/transphylo.yml"
+    threads:
+        4
+    shell:
+        "Rscript --vanilla scripts/run_bactDating.R output/strains/{wildcards.strain}/gubbins {input.metadata} {output.sorted} {output.rds} > {log}"
+
+# dummy target rule
+rule transmission:
+    input:
+        expand("output/strains/{strain}/transphylo_results.rds", strain=included_strain_ids)
+    output:
+        "done.txt"
+    shell:
+        "touch done.txt"
+
+rule transphylo:
+    input:
+        rds="output/strains/{strain}/bactdate_data.rds",
+        sorted="output/strains/{strain}/sorted.rds"
+    output:
+        rds="output/strains/{strain}/transphylo_results.rds"
+    group:
+        "outbreak"
+    params:
+        w_shape=config['transphylo']['w_shape'],
+        w_scale=config['transphylo']['w_scale'],
+        mcmcIterations=config['transphylo']['mcmcIterations'],
+        startNeg=config['transphylo']['startNeg'],
+        startOff_r=config['transphylo']['startOff_r'],
+        startOff_p=config['transphylo']['startOff_p'],
+        startPi=config['transphylo']['startPi'],
+        optiStart=config['transphylo']['optiStart'],
+        dateT=config['transphylo']['dateT'],
+        gubbins="output/strains/{strain}/gubbins"
+    log:
+        "logs/transphylo_{strain}.log"
+    conda:
+        config["poppipe_location"] + "/envs/transphylo.yml"
+    threads:
+        4
+    shell:
+        "Rscript --vanilla scripts/run_transPhylo.R --rds {input.rds} --sorted {input.sorted} --output {output}\
+        --gubbins {params.gubbins} --wshape {params.w_shape} \
+        --wscale {params.w_scale} --mcmcIterations {params.mcmcIterations} \
+        --startNeg {params.startNeg} --startOffr {params.startOff_r} \
+        --startOffp {params.startOff_p} --startPi {params.startPi} \
+        --optiStart {params.optiStart} --dateT {params.dateT} > {log}"
 
 # in tree + aln mode
 rule fastbaps:
@@ -190,7 +285,6 @@ rule fastbaps:
         "{params.fb_script} -p 'baps' -i {input.align} -o {output} -l {params.levels} --phylogeny={input.tree} -t {threads} > {log}"
 
 # Visualisation below here:
-
 rule graft_tree:
     input:
         ml_trees=expand("output/strains/{strain}/besttree.nwk", strain=included_strain_ids),

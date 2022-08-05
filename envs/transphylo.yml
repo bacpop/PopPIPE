@@ -1,0 +1,12 @@
+name: transphylo
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+  - r
+dependencies:
+  - r-transphylo
+  - r-bactdating
+  - r-ape
+  - r-optparse
+  - r-fs

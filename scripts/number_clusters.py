@@ -21,6 +21,7 @@ with open(snakemake.output[0], 'w') as outfile:
         if file_match:
             cluster = file_match.group(1)
         else:
+            print("no match: ", file_match)
             sys.stderr.write("Error finding fastbaps output\n")
             sys.exit(1)
 
@@ -44,5 +45,3 @@ with open(snakemake.output[0], 'w') as outfile:
     for sample, cluster in excluded_clusters.iterrows():
         fields_out = [sample, str(cluster['Cluster'])] + ['NA'] * snakemake.params['levels']
         outfile.write(",".join(fields_out) + "\n")
-
-

@@ -14,6 +14,8 @@ properties:
     type: string
   poppunk_h5:
     type: string
+  transmission_metadata:
+    type: string
 
   min_cluster_size:
     type: integer
@@ -47,6 +49,64 @@ properties:
       - enabled
       - mode
       - model
+
+gubbins:
+  type: object
+  properties:
+    prefix:
+      type: string
+    tree_builder:
+      type: string
+    min_snps:
+      type: integer
+      default: 3
+    min_window_size:
+      type: integer
+      default: 100
+    max_window_size:
+      type: integer
+      default: 10000
+    iterations:
+      type: integer
+      default: 10
+  required:
+    - prefix
+    - tree_builder
+    - min_snps
+    - min_window_size
+    - max_window_size
+    - iterations
+
+  transphylo:
+    type: object
+    properties:
+      w_shape:
+        type: integer
+        default: 10
+      w_scale:
+        type: integer
+        default: 0.1
+      mcmcIterations:
+        type: integer
+        default: 1000
+      startNeg:
+        type: integer
+        default: 0.1
+      startOff_r:
+        type: integer
+        default: 1
+      startOff_p:
+        type: integer
+        default: 0.5
+      startPi:
+        type: integer
+        default: 0.5
+      optiStart:
+        type: integer
+        default: 2
+      dateT:
+        type: integer
+        default: 0
 
   fastbaps:
     type: object

@@ -1,5 +1,7 @@
 import subprocess
 from shutil import copyfile
+from pandas import read_table
+import os
 
 from ete3 import Tree
 
@@ -24,7 +26,8 @@ midpoint_root(snakemake.output.unrooted, snakemake.output.rooted)
 
 # Change any hashes in names back from underscores
 rooted_file=open(snakemake.output.rooted, 'r')
-og_files=open(snakemake.input.rfiles, 'r')
+samples = read_table(snakemake.input.rfiles, header=None, sep='\t')
+og_files = samples.iloc[:, 0].values.tolist()
 
 for line in rooted_file:
     for name in og_files:

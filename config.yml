@@ -2,9 +2,10 @@
 poppipe_location: .
 
 # Files output by the PopPUNK run
-poppunk_rfile: rlist.txt
-poppunk_clusters: listeria_clusters.csv
-poppunk_h5: listeria.h5
+poppunk_rfile: rfiles.txt
+poppunk_clusters: database_clusters.csv
+poppunk_h5: database.h5
+transmission_metadata: transmission_metadata.csv
 
 # Minimum cluster size to subcluster
 min_cluster_size: 6
@@ -13,6 +14,27 @@ min_cluster_size: 6
 ska:
   fastq_qual: 20
   fastq_cov: 4
+
+# gubbins options
+gubbins:
+  prefix: gubbins
+  tree_builder: iqtree
+  min_snps: 3
+  min_window_size: 100
+  max_window_size: 10000
+  iterations: 10
+
+# transphylo options
+transphylo:
+  w_shape: 10
+  w_scale: 0.1
+  mcmcIterations: 1000
+  startNeg: 0.1
+  startOff_r: 1
+  startOff_p: 0.5
+  startPi: 0.5
+  optiStart: 2
+  dateT: 0
 
 # IQ-TREE options
 iqtree:
