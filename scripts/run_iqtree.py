@@ -40,29 +40,3 @@ rooted_file.close()
 file = open(snakemake.output.rooted, 'w')
 file.write(line)
 file.close()
-
-# change align_variants.aln
-new_names = []
-replacement_needed = False
-for name in og_files:
-    og_name=name.split()[0]
-    if '#' in og_name:
-        new_names.append(og_name.replace('#', '_'))
-        replacement_needed = True
-    else:
-        new_names.append(og_name)
-
-if replacement_needed:
-    align_file=open(snakemake.input.alignment, 'r')
-    new_file_name = snakemake.input.alignment.replace('align_variants.aln', 'temp_align_variants.aln')
-    new_align_file = open(snakemake.params.temp, 'w')
-    new_align_file = open(new_file_name, 'w')
-    for line in align_file:
-        line=line.strip()
-        if ">" in line:
-            new_align_file.write(">" + new_names.pop(0) + '\n')
-        else:
-            new_align_file.write(line + '\n')
-    new_align_file.close()
-    align_file.close()
-    os.rename(new_file_name, snakemake.input.alignment)
