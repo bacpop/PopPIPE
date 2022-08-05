@@ -2,10 +2,14 @@
 poppipe_location: .
 
 # Files output by the PopPUNK run
-poppunk_rfile: rfiles.txt
-poppunk_clusters: database_clusters.csv
-poppunk_h5: database.h5
-transmission_metadata: "transmission_metadata.csv"
+# poppunk_rfile: rfiles.txt
+# poppunk_clusters: database_clusters.csv
+# poppunk_h5: database.h5
+# transmission_metadata: transmission_metadata.csv
+poppunk_rfile: ../PopPUNK/without_hash/rfiles.txt
+poppunk_clusters: ../PopPUNK/without_hash/mass_database/mass_database_clusters.csv
+poppunk_h5: ../PopPUNK/without_hash/mass_database/mass_database.h5
+transmission_metadata: "meta_data_edited_new_strain_name.csv"
 
 # Minimum cluster size to subcluster
 min_cluster_size: 6
@@ -34,6 +38,7 @@ transphylo:
   startOff_p: 0.5
   startPi: 0.5
   optiStart: 2
+  dateT: 0
 
 # IQ-TREE options
 iqtree:

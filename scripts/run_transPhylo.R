@@ -21,7 +21,8 @@ option_list <- list(
   make_option("--startOffr", type="double"),
   make_option("--startOffp", type="double"),
   make_option("--startPi", type="double"),
-  make_option("--optiStart", type="double")
+  make_option("--optiStart", type="double"),
+  make_option("--dateT", type="double")
 )
 
 opt <- parse_args(OptionParser(option_list=option_list))
@@ -32,7 +33,13 @@ bactdate_data <- readRDS(opt$rds)
 dates <- readRDS(opt$sorted)
 max_date = max(na.omit(dates))
 ptree <- ptreeFromPhylo(bactdate_data$tree, dateLastSample = max_date)
-dateT <- max_date + 0.1
+
+if (opt$dateT == 0) {
+  dateT <- max_date + 0.1
+} else {
+  dateT <- opt$dateT
+}
+
 
 results <- inferTTree(ptree,
                       w.shape = opt$wshape,

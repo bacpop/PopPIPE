@@ -104,6 +104,9 @@ gubbins:
       optiStart:
         type: integer
         default: 2
+      dateT:
+        type: integer
+        default: 0
 
   fastbaps:
     type: object
@@ -157,7 +160,6 @@ required:
   - poppunk_rfile
   - poppunk_clusters
   - poppunk_h5
-  - transmission_metadata
   - iqtree
   - fastbaps
   - mandrake

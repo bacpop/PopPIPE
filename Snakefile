@@ -247,6 +247,7 @@ rule transphylo:
         startOff_p=config['transphylo']['startOff_p'],
         startPi=config['transphylo']['startPi'],
         optiStart=config['transphylo']['optiStart'],
+        dateT=config['transphylo']['dateT'],
         gubbins="output/strains/{strain}/gubbins"
     log:
         "logs/transphylo_{strain}.log"
@@ -260,7 +261,7 @@ rule transphylo:
         --wscale {params.w_scale} --mcmcIterations {params.mcmcIterations} \
         --startNeg {params.startNeg} --startOffr {params.startOff_r} \
         --startOffp {params.startOff_p} --startPi {params.startPi} \
-        --optiStart {params.optiStart} > {log}"
+        --optiStart {params.optiStart} --dateT {params.dateT} > {log}"
 
 # in tree + aln mode
 rule fastbaps:
