@@ -6,4 +6,3 @@ channels:
   - r
 dependencies:
   - gubbins >= 3.1.0
-  - python =3.9.13
