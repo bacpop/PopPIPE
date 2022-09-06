@@ -15,6 +15,30 @@ ska:
   fastq_qual: 20
   fastq_cov: 4
 
+# IQ-TREE options
+iqtree:
+  enabled: true
+  mode: full
+  model: GTR+ASC+G
+
+# fastbaps options
+fastbaps:
+  # Number of hierarchical clustering levels
+  levels: 2
+
+# mandrake options
+mandrake:
+  knn: 50
+  perplexity: 25
+  maxIter: 100000
+
+# Microreact title, and your contact details
+microreact:
+  name: Listeria PopPIPE
+  website: https://www.poppunk.net
+  email: poppunk@poppunk.net
+  api_token: a1b2c3d4  ## see https://docs.microreact.org/api/access-tokens
+
 # gubbins options
 gubbins:
   prefix: gubbins
@@ -35,30 +59,3 @@ transphylo:
   startPi: 0.5
   optiStart: 2
   dateT: 0
-
-# IQ-TREE options
-iqtree:
-  enabled: true
-  mode: full
-  model: GTR+ASC+G
-
-# fastbaps options
-fastbaps:
-  # Number of hierarchical clustering levels
-  levels: 2
-  # Location of `run_fastbaps`.
-  # Find by running `system.file("run_fastbaps", package = "fastbaps")` in R.
-  script: run_fastbaps
-
-# mandrake options
-mandrake:
-  knn: 50
-  perplexity: 25
-  maxIter: 100000
-
-# Microreact title, and your contact details
-microreact:
-  name: Listeria PopPIPE
-  website: https://www.poppunk.net
-  email: poppunk@poppunk.net
-  api_token: a1b2c3d4  ## see https://docs.microreact.org/api/access-tokens
