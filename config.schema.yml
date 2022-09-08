@@ -81,31 +81,31 @@ properties:
     type: object
     properties:
       w_shape:
-        type: integer
+        type: number
         default: 10
       w_scale:
-        type: integer
+        type: number
         default: 0.1
       mcmcIterations:
         type: integer
         default: 1000
       startNeg:
-        type: integer
+        type: number
         default: 0.1
       startOff_r:
-        type: integer
+        type: number
         default: 1
       startOff_p:
-        type: integer
+        type: number
         default: 0.5
       startPi:
-        type: integer
+        type: number
         default: 0.5
       optiStart:
-        type: integer
+        type: number
         default: 2
       dateT:
-        type: integer
+        type: number
         default: 0
 
   fastbaps:
@@ -125,10 +125,10 @@ properties:
         minimum: 5
         maximum: 100
       knn:
-        type: number
+        type: integer
         minimum: 2
       maxIter:
-        type: number
+        type: integer
         minimum: 10000
         default: 100000
     required:
