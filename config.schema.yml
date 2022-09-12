@@ -16,6 +16,7 @@ properties:
     type: string
   transmission_metadata:
     type: string
+    default: ""
 
   min_cluster_size:
     type: integer
