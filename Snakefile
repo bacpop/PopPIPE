@@ -212,6 +212,8 @@ rule bactdating:
         sorted="output/strains/{strain}/sorted.rds"
     group:
         "outbreak"
+    params:
+        script=config["poppipe_location"] + "/scripts/run_bactDating.R"
     log:
         "logs/bactdating_{strain}.log"
     conda:
@@ -219,7 +221,7 @@ rule bactdating:
     threads:
         4
     shell:
-        "Rscript --vanilla scripts/run_bactDating.R output/strains/{wildcards.strain}/gubbins {input.metadata} {output.sorted} {output.rds} > {log}"
+        "Rscript --vanilla {params.script} output/strains/{wildcards.strain}/gubbins {input.metadata} {output.sorted} {output.rds} > {log}"
 
 # dummy target rule
 rule transmission:
@@ -239,6 +241,7 @@ rule transphylo:
     group:
         "outbreak"
     params:
+        script=config["poppipe_location"] + "/scripts/run_transPhylo.R",
         w_shape=config['transphylo']['w_shape'],
         w_scale=config['transphylo']['w_scale'],
         mcmcIterations=config['transphylo']['mcmcIterations'],
@@ -256,14 +259,13 @@ rule transphylo:
     threads:
         4
     shell:
-        "Rscript --vanilla scripts/run_transPhylo.R --rds {input.rds} --sorted {input.sorted} --output {output}\
+        "Rscript --vanilla {params.script} --rds {input.rds} --sorted {input.sorted} --output {output} \
         --gubbins {params.gubbins} --wshape {params.w_shape} \
         --wscale {params.w_scale} --mcmcIterations {params.mcmcIterations} \
         --startNeg {params.startNeg} --startOffr {params.startOff_r} \
         --startOffp {params.startOff_p} --startPi {params.startPi} \
         --optiStart {params.optiStart} --dateT {params.dateT} > {log}"
 
-# in tree + aln mode
 rule fastbaps:
     input:
         tree="output/strains/{strain}/besttree.nwk",
@@ -273,7 +275,7 @@ rule fastbaps:
     group:
         "bapsclust"
     params:
-        fb_script=config['fastbaps']['script'],
+        script=config["poppipe_location"] + "/scripts/run_fastbaps.R",
         levels=config['fastbaps']['levels']
     log:
         "logs/fastbaps_{strain}.log"
@@ -282,7 +284,7 @@ rule fastbaps:
     threads:
         4
     shell:
-        "{params.fb_script} -p 'baps' -i {input.align} -o {output} -l {params.levels} --phylogeny={input.tree} -t {threads} > {log}"
+        "Rscript --vanilla {params.script} {input.align} {output} {params.levels} {input.tree} {threads} > {log}"
 
 # Visualisation below here:
 rule graft_tree:

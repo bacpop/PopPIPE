@@ -16,6 +16,7 @@ properties:
     type: string
   transmission_metadata:
     type: string
+    default: ""
 
   min_cluster_size:
     type: integer
@@ -50,74 +51,71 @@ properties:
       - mode
       - model
 
-gubbins:
-  type: object
-  properties:
-    prefix:
-      type: string
-    tree_builder:
-      type: string
-    min_snps:
-      type: integer
-      default: 3
-    min_window_size:
-      type: integer
-      default: 100
-    max_window_size:
-      type: integer
-      default: 10000
-    iterations:
-      type: integer
-      default: 10
-  required:
-    - prefix
-    - tree_builder
-    - min_snps
-    - min_window_size
-    - max_window_size
-    - iterations
+  gubbins:
+    type: object
+    properties:
+      prefix:
+        type: string
+      tree_builder:
+        type: string
+      min_snps:
+        type: integer
+        default: 3
+      min_window_size:
+        type: integer
+        default: 100
+      max_window_size:
+        type: integer
+        default: 10000
+      iterations:
+        type: integer
+        default: 10
+    required:
+      - prefix
+      - tree_builder
+      - min_snps
+      - min_window_size
+      - max_window_size
+      - iterations
 
   transphylo:
     type: object
     properties:
       w_shape:
-        type: integer
+        type: number
         default: 10
       w_scale:
-        type: integer
+        type: number
         default: 0.1
       mcmcIterations:
         type: integer
         default: 1000
       startNeg:
-        type: integer
+        type: number
         default: 0.1
       startOff_r:
-        type: integer
+        type: number
         default: 1
       startOff_p:
-        type: integer
+        type: number
         default: 0.5
       startPi:
-        type: integer
+        type: number
         default: 0.5
       optiStart:
-        type: integer
+        type: number
         default: 2
       dateT:
-        type: integer
+        type: number
         default: 0
 
   fastbaps:
     type: object
     properties:
-      script:
-        type: string
       levels:
         type: integer
         minimum: 1
     required:
-      - script
       - levels
 
   mandrake:
@@ -128,10 +126,10 @@ gubbins:
         minimum: 5
         maximum: 100
       knn:
-        type: number
+        type: integer
         minimum: 2
       maxIter:
-        type: number
+        type: integer
         minimum: 10000
         default: 100000
     required:
