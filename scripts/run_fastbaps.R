@@ -25,7 +25,7 @@ tryCatch(
         message("Problem loading fasta file – not generating subclusters")
         snp_data <- fastbaps:::import_fasta_to_vector_each_nt(aln_file)
         names <-  gsub("^>", "", snp_data$seq.names)
-        null_clusters <- array(1, c(len(names), levels))
+        null_clusters <- array(1, c(length(names), levels))
         colnames(null_clusters) <- paste0("Level ", seq(1, levels))
         multi <- cbind(data.frame(Isolates = snp_data$seq.names), null_clusters)
     }
