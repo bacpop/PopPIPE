@@ -19,6 +19,9 @@ tryCatch(
         tree <- ape::read.tree(tree_file)
         multi <- fastbaps::multi_level_best_baps_partition(sparse_data,
             h = tree, levels = levels, n.cores = threads)
+        # write results
+        write.table(multi, file = output, row.names = FALSE, col.names = TRUE,
+                    sep = ",", quote = FALSE)
     },
     error = function(e) {
         print(e)
@@ -28,9 +31,9 @@ tryCatch(
         null_clusters <- array(1, c(length(names), levels))
         colnames(null_clusters) <- paste0("Level ", seq(1, levels))
         multi <- cbind(data.frame(Isolates = snp_data$seq.names), null_clusters)
+        # write results
+        write.table(multi, file = output, row.names = FALSE, col.names = TRUE,
+                    sep = ",", quote = FALSE)
     }
 )
 
-# write results
-write.table(multi, file = output, row.names = FALSE, col.names = TRUE,
-            sep = ",", quote = FALSE)
