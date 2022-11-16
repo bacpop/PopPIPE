@@ -2,6 +2,7 @@ import sys
 import pandas as pd
 from datetime import datetime
 import pickle
+import re
 import requests
 import json
 
@@ -28,6 +29,9 @@ with open(snakemake.input['tree'], 'r') as tree_file:
 
 with open(snakemake.input['dot'], 'r') as dot_file:
     dot_string = dot_file.read()
+    re.sub(r'\[x=', '[x="', dot_string)
+    re.sub(r',y=', '",y="', dot_string)
+    re.sub(r'\];', '"];', dot_string)
 
 clusters = pd.read_table(snakemake.input['clusters'], sep=",", dtype=str,
                          keep_default_na=False, na_values=[""]).set_index("Taxon")
