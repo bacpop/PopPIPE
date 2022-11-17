@@ -326,10 +326,10 @@ rule generate_dot:
     threads:
         64
     shell:
-        "mkdir -p output/viz && "
-        "mandrake --sketches {input} --output output/viz/mandrake "
-        "--use-accessory --perplexity {params.perplexity} --kNN {params.knn} "
-        "--maxIter {params.maxIter} --cpus {threads} --no-clustering &> {log}"
+        "mkdir -p output/viz && \
+        mandrake --sketches {input} --output output/viz/mandrake \
+        --use-accessory --perplexity {params.perplexity} --kNN {params.knn} \
+        --maxIter {params.maxIter} --cpus {threads} --no-clustering &> {log}"
 
 # use microreact api
 rule make_microreact:
