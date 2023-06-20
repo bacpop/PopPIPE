@@ -10,10 +10,13 @@ transmission_metadata: transmission_metadata.csv
 # Minimum cluster size to subcluster
 min_cluster_size: 6
 
-# ska options for read sets with "ska fastq"
+# ska options
 ska:
   fastq_qual: 20
   fastq_cov: 4
+  kmer: 21
+  single_strand: false
+  freq_filter: 0.9
 
 # IQ-TREE options
 iqtree:

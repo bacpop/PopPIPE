@@ -35,6 +35,19 @@ properties:
         minimum: 0
         maximum: 2000
         default: 4
+      kmer:
+        type: integer
+        minimum: 7
+        maximum: 63
+        default: 21
+      single_strand:
+        type: boolean
+        default: false
+      freq_filter:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        default: 0.9
 
   iqtree:
     type: object
