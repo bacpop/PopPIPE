@@ -18,7 +18,7 @@ The default pipeline consists of the following steps:
 
 Default (subclusters) `snakemake`:
 
-<img src='ska2_dag.png' height="100" />
+<img src='ska2_dag.png' height="550" />
 
 ### With `make_microreact` target
 
@@ -42,7 +42,7 @@ This requires a `transmission_metadata.csv` file
 
 `snakemake transmission`:
 
-<img src='transmission_dag.png' align="right" height="250" />
+<img src='transmission_dag.png' height="550" />
 
 ## Installation
 
