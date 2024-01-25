@@ -1,6 +1,6 @@
 # PopPIPE: Population analysis PIPEline 🛠🧬
 
-[![Build and push Docker image](https://github.com/johnlees/PopPIPE/workflows/Build%20and%20push%20Docker%20image/badge.svg?branch=master)](https://hub.docker.com/repository/docker/poppunk/poppipe)
+[![Build and push Docker image](https://github.com/bacpop/PopPIPE/actions/workflows/docker_push.yml/badge.svg)](https://github.com/bacpop/PopPIPE/actions/workflows/docker_push.yml)
 
 Downstream analysis of [PopPUNK](https://www.poppunk.net/) results. Produces subclusters and visualisations of all strains.
 
@@ -38,7 +38,7 @@ In addition to the above, for each strain:
 - Use [bactdating](https://github.com/xavierdidelot/BactDating) to make timed trees.
 - Use [transphylo](https://github.com/xavierdidelot/TransPhylo) to infer transmission events on these timed trees.
 
-This requires a `transmission_metadata.csv` file
+This requires a `transmission_metadata.csv` file containing sampling times, see the PopPIPE configuration section below for a description of its format.
 
 `snakemake transmission`:
 
