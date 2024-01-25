@@ -42,8 +42,7 @@ rule split_strains:
         config["poppunk_rfile"]
     output:
         rfile="output/strains/{strain}/rfile.txt",
-        namefile="output/strains/{strain}/names.txt",
-        skafile="output/strains/{strain}/ska_index.txt"
+        namefile="output/strains/{strain}/names.txt"
     group:
         "clustersplit"
     run:
@@ -52,9 +51,6 @@ rule split_strains:
         if (len(sample_subset) > 1):
             sample_subset.to_csv(output.rfile, sep="\t", header=False)
             sample_subset.index.to_series().to_csv(output.namefile, sep="\t", header=False, index=False)
-            with open(output.skafile, 'w') as ska_list:
-                for sample in cluster_samples:
-                    ska_list.write("output/ska_index/" + sample + ".skf\n")
 
 rule group_stragglers:
     input:
@@ -112,28 +108,30 @@ rule generate_nj:
     script:
         config["poppipe_location"] + "/scripts/run_rapidnj.py"
 
-# ska for alignment
-rule ska_index:
+rule ska_build:
     input:
-        assembly=lambda wildcards: included_samples.loc[wildcards.sample]
+        samples="output/strains/{strain}/rfile.txt"
     output:
-        "output/ska_index/{sample}.skf"
+        skf="output/strains/{strain}/split_kmers.skf",
     params:
+        skf_prefix="output/strains/{strain}/split_kmers",
         fastq_qual=config['ska']['fastq_cov'],
-        fastq_cov=config['ska']['fastq_qual']
+        fastq_cov=config['ska']['fastq_qual'],
+        kmer=config['ska']['kmer'],
+        single_strand=config['ska']['single_strand']
     log:
-        "logs/ska_index_{sample}.log"
+        "logs/ska_build_{strain}.log"
     conda:
         config["poppipe_location"] + "/envs/ska.yml"
     script:
-        config["poppipe_location"] + "/scripts/run_ska_index.py"
+        config["poppipe_location"] + "/scripts/run_ska_build.py"
 
+# ska for alignment
 rule ska_align:
     input:
-        ska=expand("output/ska_index/{sample}.skf", sample=included_samples.index),
-        samples="output/strains/{strain}/ska_index.txt"
+        skf="output/strains/{strain}/split_kmers.skf"
     output:
-        alignment=("output/strains/{strain}/align_variants.aln")
+        alignment="output/strains/{strain}/align_variants.aln"
     group:
         "align"
     log:
@@ -143,7 +141,27 @@ rule ska_align:
     conda:
         config["poppipe_location"] + "/envs/ska.yml"
     shell:
-        "ska align -v -o {params.prefix} -f {input.samples} > {log}"
+        "ska align -v --filter no-filter {input.skf} > {output.alignment} 2> {log}"
+
+# ska for mapping (needed for gubbins)
+rule ska_map:
+    input:
+        skf="output/strains/{strain}/split_kmers.skf",
+        reference_list="output/strains/{strain}/rfile.txt"
+    output:
+        alignment="output/strains/{strain}/map_variants.aln"
+    group:
+        "gubbins"
+    log:
+        "logs/ska_map_{strain}.log"
+    params:
+        prefix="output/strains/{strain}/align"
+    conda:
+        config["poppipe_location"] + "/envs/ska.yml"
+    threads:
+        4
+    shell:
+        "ska map -v \"$(head -1 {input.reference_list})\" {input.skf} --threads {threads} > {output.alignment} 2> {log}"
 
 # will set fast or slow in params.yaml
 rule iq_tree:
@@ -172,7 +190,7 @@ rule iq_tree:
 
 rule gubbins:
     input:
-        alignment="output/strains/{strain}/align_variants.aln",
+        alignment="output/strains/{strain}/map_variants.aln",
         start_tree="output/strains/{strain}/besttree.nwk"
     output:
         final_tree="output/strains/{strain}/gubbins.final_tree.tre",
@@ -187,17 +205,14 @@ rule gubbins:
         min_window=config['gubbins']['min_window_size'],
         max_window=config['gubbins']['max_window_size'],
         iterations=config['gubbins']['iterations'],
-        aln="align_variants.aln",
-        btree="besttree.nwk"
-
     conda:
         config["poppipe_location"] + "/envs/gubbins.yml"
     threads:
         4
     shell:
         "pushd output/strains/{wildcards.strain}/ && \
-        run_gubbins.py {params.aln} --prefix {params.prefix} \
-        --starting-tree {params.btree} --tree-builder {params.tree_builder} \
+        run_gubbins.py {input.alignment} --prefix {params.prefix} \
+        --starting-tree {input.start_tree} --tree-builder {params.tree_builder} \
         --min-snps {params.min_snp} --min-window-size {params.min_window} \
         --max-window-size {params.max_window} --iterations {params.iterations} \
         --threads {threads} > {log} \
