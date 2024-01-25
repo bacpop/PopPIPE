@@ -13,20 +13,21 @@ tree = loadGubbins(args[1])
 # meta data needs to be included, including sampling time of the isolates
 df <- read.csv(file = args[2])
 # create df with only id and date
-id_and_date <- df[c("Strain.Name", "Year.of.Isolation")]
+id_and_date <- df[c("Name", "Date")]
 
 # create df for tips of tree, naming the column the same name as the meta data table to merge and have the tree tips and dates in the same order
 tips <- data.frame(tree$tip.label)
-colnames(tips)[1] <- "Strain.Name"
+colnames(tips)[1] <- "Name"
 
 # merging tips and ids to get all the dates for the isolates in current cluster
 print("Merging")
-merged <- merge(tips, id_and_date, by = "Strain.Name")
+merged <- merge(tips, id_and_date, by = "Name")
 
 # making leaves and dates be in the same order
 merged <- merged[match(tips$Strain.Name, merged$Strain.Name),]
 
-sorted_dates = merged$Year.of.Isolation
+sorted_dates = as.numeric(as.Date(merged$Date, tryFormats = c("%Y-%m-%d", "%Y/%m/%d", "%Y")))
+sorted_dates = sorted_dates/365 # years
 saveRDS(sorted_dates, file = args[3])
 
 # does the actual bactdating: date the nodes of the tree

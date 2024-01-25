@@ -8,22 +8,41 @@ Further documentation can be found in the [PopPUNK docs](https://poppunk.readthe
 
 ## Pipeline description
 
-The pipeline consists of the following steps:
+The default pipeline consists of the following steps:
 - Split files into their [PopPUNK](https://www.poppunk.net/) strains.
 - Use [pp-sketchlib](https://github.com/bacpop/pp-sketchlib) to calculate core and accessory distances within each strain.
 - Use core distances and [rapidnj](https://birc.au.dk/software/rapidnj/) to make a neighbour-joining tree.
-- (lineage_clust mode) Generate clusters from core distances with lineage clustering in PopPUNK.
-- Use [ska](https://github.com/simonrharris/SKA) to generate within-strain alignments.
+- Use [SKA2](https://github.com/bacpop/ska.rust) to generate within-strain alignments in reference free mode.
 - Use [IQ-TREE](http://www.iqtree.org/) to generate an ML phylogeny using this alignment, and the NJ tree as a starting point.
 - Use [fastbaps](https://github.com/gtonkinhill/fastbaps) to generate subclusters which are partitions of the phylogeny.
+
+Default (subclusters) `snakemake`:
+
+![subcluster dag](ska2_dag.pdf)
+
+### With `make_microreact` target
+
+In addition to the above:
 - Create an overall visualisation with both core and accessory distances, as in PopPUNK. The final tree consists of refining the NJ tree by grafting the maximum likelihood trees for subclusters to their matching nodes.
 - Use [microreact](https://www.microreact.org) to display the results.
 
-### Example pipeline DAG
+`snakemake make_microreact`:
 
-![pipeline dag](snakemake_dag.png)
+![subcluster dag](microreact_dag.pdf)
 
-`ska index` steps (one per sample, and a dependency of all `ska align` steps) have been omitted for simplicity.
+### With `transmission` target
+
+In addition to the above, for each strain:
+- Use [SKA2](https://github.com/bacpop/ska.rust) map to generate within-strain alignments in reference-based mode.
+- Use [gubbins](https://github.com/nickjcroucher/gubbins) to remove recombination.
+- Use [bactdating](https://github.com/xavierdidelot/BactDating) to make timed trees.
+- Use [transphylo](https://github.com/xavierdidelot/TransPhylo) to infer transmission events on these timed trees.
+
+This requires a `transmission_metadata.csv` file
+
+`snakemake transmission`:
+
+![subcluster dag](transmission_dag.pdf)
 
 ## Installation
 
@@ -63,6 +82,7 @@ You can also follow the above process and make a local clone of snakemake, and r
 each step inside it.
 
 Use `--singularity-args` if you need to bind directories.
+
 ## Usage
 
 1. Modify `config.yml` as appropriate.
@@ -103,18 +123,22 @@ and saved in `output/microreact_url.txt`.
 * `poppunk_rfile`: The `--rfile` used with PopPUNK, which lists sample names and files, one per line, tab separated.
 * `poppunk_clusters`: The PopPUNK cluster CSV file, usually `poppunk_db/poppunk_db_clusters.csv`.
 * `poppunk_h5`: The PopPUNK HDF5 database file.
+* `transmission_metadata`: (optional) a CSV file with strain names in a column labelled 'Name' and sampling dates labelled 'Date'. The date can be in format YYYY-mm-dd, YYYY/mm/dd or just the year YYYY.
 * `min_cluster_size`: The minimum size of a cluster to run the analysis on (recommended at least 6).
 
 ### SKA configuration
 
 * `fastq_qual`: With read input, the `-q` option, which ignores k-mers with bases below this score.
 * `fastq_cov`: With read input, the `-c` option, which sets a minimum k-mer count.
+* `kmer`: The k-mer size, choose longer k-mers for less diverse clusters.
+* `single_strand`: Set to true is sequences are single-straded and phased (e.g. RNA viruses).
+* `freq_filter`: Minimum frequency of samples a split k-mer must appear in to be in the alignment.
 
 ### IQ-TREE configuration
 
 * `enabled`: Set to `false` to turn off ML tree generation, and use the NJ tree throughout.
 * `mode`: Set to `full` to run with the specified model, set to `fast` to run using `--fast` (like fasttree).
-* `model`: A string for the `-m` parameter describing the model. Adding `+ASC` is recommended.
+* `model`: A string for the `-m` parameter describing the model. Adding `+ASC` is not recommended.
 
 ### fastbaps configuration
 
@@ -133,6 +157,22 @@ and saved in `output/microreact_url.txt`.
 * `website`: Website link to give in Microreach
 * `email`: Contact email to list in Microreact
 * `api_token`: The API token from your Microreact account
+
+### Gubbins configuration
+
+* `prefix`: Folder name for gubbins results
+* `tree_builder`: Program to use to build trees.
+* `min_snps`: Min SNPs to identify a recombination block
+* `min_window_size`: Minimum window size of blocks
+* `max_window_size`: Maximum window size of blocks
+* `iterations`: Maximum iterations of tree building and removal
+
+### Transphylo configuration
+
+* `dateT`: Date when transmission stops. If zero, the maximum date is used. If supplied, this needs to be on the same scale as bactdating, which
+is number of years since 1970 (i.e. Unix format divided by 365).
+
+Otherwise these options are passed to the `inferTTree()` method in transphylo and we refer users to the [reference documentation](http://xavierdidelot.github.io/TransPhylo/reference/inferTTree.html).
 
 ## Updating a run with results from poppunk_assign
 
