@@ -112,20 +112,19 @@ rule ska_build:
     input:
         samples="output/strains/{strain}/rfile.txt"
     output:
-        skf="output/strains/{strain}/split_kmers.skf"
+        skf="output/strains/{strain}/split_kmers.skf",
     params:
+        skf_prefix="output/strains/{strain}/split_kmers",
         fastq_qual=config['ska']['fastq_cov'],
         fastq_cov=config['ska']['fastq_qual'],
         kmer=config['ska']['kmer'],
-        strand=config['ska']['single_strand']
+        single_strand=config['ska']['single_strand']
     log:
         "logs/ska_build_{strain}.log"
     conda:
         config["poppipe_location"] + "/envs/ska.yml"
     script:
         config["poppipe_location"] + "/scripts/run_ska_build.py"
-    threads:
-        16
 
 # ska for alignment
 rule ska_align:
@@ -142,12 +141,12 @@ rule ska_align:
     conda:
         config["poppipe_location"] + "/envs/ska.yml"
     shell:
-        "ska align -v {input.skf} > {output.alignment} 2> {log}"
+        "ska align -v --filter no-filter {input.skf} > {output.alignment} 2> {log}"
 
 # ska for mapping (needed for gubbins)
 rule ska_map:
     input:
-        skf="output/strains/{strain}/split_kmers.skf"
+        skf="output/strains/{strain}/split_kmers.skf",
         reference_list="output/strains/{strain}/rfile.txt"
     output:
         alignment="output/strains/{strain}/map_variants.aln"
@@ -159,10 +158,10 @@ rule ska_map:
         prefix="output/strains/{strain}/align"
     conda:
         config["poppipe_location"] + "/envs/ska.yml"
-    shell:
-        "ska map -v \"$(head -1 {input.reference_list})\" {input.skf} --threads {threads} > {output.alignment} 2> {log}"
     threads:
         4
+    shell:
+        "ska map -v \"$(head -1 {input.reference_list})\" {input.skf} --threads {threads} > {output.alignment} 2> {log}"
 
 # will set fast or slow in params.yaml
 rule iq_tree:

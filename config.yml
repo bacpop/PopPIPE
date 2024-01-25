@@ -22,7 +22,7 @@ ska:
 iqtree:
   enabled: true
   mode: full
-  model: GTR+ASC+G
+  model: GTR+G # do not use ASC
 
 # fastbaps options
 fastbaps:
