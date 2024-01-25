@@ -18,7 +18,7 @@ The default pipeline consists of the following steps:
 
 Default (subclusters) `snakemake`:
 
-![subcluster dag](ska2_dag.pdf)
+![subcluster dag](ska2_dag.png)
 
 ### With `make_microreact` target
 
@@ -28,7 +28,7 @@ In addition to the above:
 
 `snakemake make_microreact`:
 
-![subcluster dag](microreact_dag.pdf)
+![subcluster dag](microreact_dag.png)
 
 ### With `transmission` target
 
@@ -42,7 +42,7 @@ This requires a `transmission_metadata.csv` file
 
 `snakemake transmission`:
 
-![subcluster dag](transmission_dag.pdf)
+![subcluster dag](transmission_dag.png)
 
 ## Installation
 
