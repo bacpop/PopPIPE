@@ -141,7 +141,7 @@ rule ska_align:
     conda:
         config["poppipe_location"] + "/envs/ska.yml"
     shell:
-        "ska align -v --filter no-filter {input.skf} > {output.alignment} 2> {log}"
+        "ska align -v --filter no-const --no-gap-only-sites {input.skf} > {output.alignment} 2> {log}"
 
 # ska for mapping (needed for gubbins)
 rule ska_map:
@@ -206,7 +206,7 @@ rule gubbins:
     conda:
         config["poppipe_location"] + "/envs/gubbins.yml"
     threads:
-        4
+        2
     shell:
         "pushd output/strains/{wildcards.strain}/ && \
         run_gubbins.py map_variants.aln --prefix {params.prefix} \
@@ -231,8 +231,6 @@ rule bactdating:
         "logs/bactdating_{strain}.log"
     conda:
         config["poppipe_location"] + "/envs/transphylo.yml"
-    threads:
-        4
     shell:
         "Rscript --vanilla {params.script} output/strains/{wildcards.strain}/gubbins {input.metadata} {output.sorted} {output.rds} > {log}"
 
@@ -269,8 +267,6 @@ rule transphylo:
         "logs/transphylo_{strain}.log"
     conda:
         config["poppipe_location"] + "/envs/transphylo.yml"
-    threads:
-        4
     shell:
         "Rscript --vanilla {params.script} --rds {input.rds} --sorted {input.sorted} --output {output} \
         --gubbins {params.gubbins} --wshape {params.w_shape} \

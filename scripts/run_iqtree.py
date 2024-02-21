@@ -10,15 +10,21 @@ def midpoint_root(infile, outfile):
     t.set_outgroup(t.get_midpoint_outgroup())
     t.write(format=5, outfile=outfile) # format 5: internal and leaf branches + leaf names
 
-if snakemake.params.enabled:
-    iqtree_cmd = "iqtree --quiet -s " + snakemake.input.alignment + " -t " + snakemake.input.start_tree + \
-                 " -T " + str(snakemake.threads) + " --prefix " + snakemake.params.prefix
-    if snakemake.params.mode == "full":
-        iqtree_cmd += " -m " + snakemake.params.model
-    elif snakemake.params.mode == "fast":
-        iqtree_cmd += " --fast"
+def iqtree_cmd(alignment, start_tree, threads, prefix, model, mode):
+    cmd = f"iqtree --quiet -st DNA -s {alignment} -t {start_tree} -T {threads} --prefix {prefix}"
+    if mode == "full":
+        cmd += f" -m {model}"
+    elif mode == "fast":
+        cmd += " --fast"
+    return cmd
 
-    subprocess.run(iqtree_cmd, shell=True, check=True)
+if snakemake.params.enabled:
+    cmd = iqtree_cmd(snakemake.input.alignment, snakemake.input.start_tree, str(snakemake.threads), snakemake.params.prefix, snakemake.params.model, snakemake.params.mode)
+    ret_code = subprocess.run(cmd, shell=True)
+    # Automatically retry with varsites if ASC fails
+    if ret_code.returncode != 0:
+        cmd = iqtree_cmd(snakemake.params.prefix + ".varsites.phy", snakemake.input.start_tree, str(snakemake.threads), snakemake.params.prefix, snakemake.params.model, snakemake.params.mode)
+        subprocess.run(cmd, shell=True, check=True)
 else:
     copyfile(snakemake.input.start_tree, snakemake.output.unrooted)
 

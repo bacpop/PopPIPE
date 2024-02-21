@@ -22,7 +22,7 @@ ska:
 iqtree:
   enabled: true
   mode: full
-  model: GTR+G # do not use ASC
+  model: 012310+G+ASC # +ASC recommended. May replace 012310 with GTR for single strand data
 
 # fastbaps options
 fastbaps:
