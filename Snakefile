@@ -158,10 +158,8 @@ rule ska_map:
         prefix="output/strains/{strain}/align"
     conda:
         config["poppipe_location"] + "/envs/ska.yml"
-    threads:
-        4
     shell:
-        "ska map -v \"$(head -1 {input.reference_list})\" {input.skf} --threads {threads} > {output.alignment} 2> {log}"
+        "ska map -v \"$(head -1 {input.reference_list} | cut -f 2)\" {input.skf} --ambig-mask > {output.alignment} 2> {log}"
 
 # will set fast or slow in params.yaml
 rule iq_tree:
@@ -211,8 +209,8 @@ rule gubbins:
         4
     shell:
         "pushd output/strains/{wildcards.strain}/ && \
-        run_gubbins.py {input.alignment} --prefix {params.prefix} \
-        --starting-tree {input.start_tree} --tree-builder {params.tree_builder} \
+        run_gubbins.py map_variants.aln --prefix {params.prefix} \
+        --starting-tree besttree.nwk --tree-builder {params.tree_builder} \
         --min-snps {params.min_snp} --min-window-size {params.min_window} \
         --max-window-size {params.max_window} --iterations {params.iterations} \
         --threads {threads} > {log} \
