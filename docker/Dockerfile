@@ -63,7 +63,7 @@ WORKDIR $PROJECT_DIR
 # build the conda environment
 ENV ENV_PREFIX $PROJECT_DIR/env
 RUN conda update --name base --channel defaults conda && \
-    conda env create --prefix $ENV_PREFIX --file /tmp/environment.yml --force && \
+    conda env create --prefix $ENV_PREFIX --file /tmp/environment.yml && \
     conda clean --all --yes
 
 # use an entrypoint script to insure conda environment is properly activated at runtime
