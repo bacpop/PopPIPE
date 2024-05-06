@@ -14,7 +14,7 @@ dependencies:
   - pp-sketchlib >=2.0.0
   - poppunk >=2.3.0
   - r-base
-  - r-fastbaps =1.0.5
+  - r-fastbaps >=1.0.5
   - mandrake >=1.2.1
   - gubbins >= 3.1.0
   - r-transphylo
