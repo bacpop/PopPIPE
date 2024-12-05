@@ -17,7 +17,7 @@ else:
 
 # table with sample, sequence, cluster
 samples = pd.read_table(config["poppunk_rfile"], header=None, index_col=0)
-clusters = pd.read_table(config["poppunk_clusters"], sep=",",).set_index("Taxon")
+clusters = pd.read_table(config["poppunk_clusters"], sep=",", dtype={'Cluster': str}).set_index("Taxon")
 
 included_strain_ids = list((clusters.Cluster.value_counts()[clusters.Cluster.value_counts() >= config["min_cluster_size"]]).index)
 included_samples = samples.loc[clusters.index[clusters.isin(included_strain_ids)["Cluster"]]]
@@ -46,7 +46,7 @@ rule split_strains:
     group:
         "clustersplit"
     run:
-        cluster_samples = clusters.loc[clusters['Cluster'] == int(wildcards.strain)].index
+        cluster_samples = clusters.loc[clusters['Cluster'] == wildcards.strain].index
         sample_subset = samples.loc[list(cluster_samples)]
         if (len(sample_subset) > 1):
             sample_subset.to_csv(output.rfile, sep="\t", header=False)
