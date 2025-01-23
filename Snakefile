@@ -1,5 +1,6 @@
 
 import re
+import sys
 from collections import defaultdict
 import pandas as pd
 from snakemake.utils import validate, min_version
@@ -20,6 +21,8 @@ samples = pd.read_table(config["poppunk_rfile"], header=None, index_col=0)
 clusters = pd.read_table(config["poppunk_clusters"], sep=",", dtype={'Cluster': str}).set_index("Taxon")
 
 included_strain_ids = list((clusters.Cluster.value_counts()[clusters.Cluster.value_counts() >= config["min_cluster_size"]]).index)
+if len(included_strain_ids) == 0:
+    sys.exit("Error: No included strain IDs found. Check min_cluster_size.")
 included_samples = samples.loc[clusters.index[clusters.isin(included_strain_ids)["Cluster"]]]
 
 container: "docker://poppunk/poppipe:latest"
@@ -64,9 +67,12 @@ rule group_stragglers:
         excluded_strains = clusters.loc[clusters.index[~clusters.isin(included_strain_ids)["Cluster"]]]
         d = defaultdict(list)
         for strain in included_strain_ids:
-            strain_list = clusters.loc[clusters['Cluster'] == int(strain)]
+            strain = str(strain).strip()
+            strain_list = clusters[clusters['Cluster'].astype(str).str.strip() == strain]
+            if strain_list.empty:
+                continue
             d['Taxon'].append(strain_list.index[0])
-            d['Cluster'].append(strain_list['Cluster'][0])
+            d['Cluster'].append(strain_list['Cluster'].iloc[0])
         all_df = pd.concat([pd.DataFrame(data=d).set_index('Taxon'), excluded_strains])
         all_df.to_csv(output.rfile, sep="\t", header=False)
         all_df.index.to_series().to_csv(output.namefile, sep="\t", header=False, index=False)
