@@ -1,4 +1,0 @@
-channels:
-  - conda-forge
-dependencies:
-  - pp-sketchlib >=2.0.0
