@@ -4,7 +4,11 @@
 
 Downstream analysis of [PopPUNK](https://www.poppunk.net/) results. Produces subclusters and visualisations of all strains.
 
-## Pipeline description
+## Use cases
+
+### Subcluster analysis (default target)
+
+To run the default pipeline for subcluster analysis run:
 
 `snakemake --cores 4`
 
@@ -17,6 +21,8 @@ The default pipeline consists of the following steps:
 - Use [fastbaps](https://github.com/gtonkinhill/fastbaps) to generate subclusters which are partitions of the phylogeny.
 
 <img src='full_dag.png' height="550" />
+
+For an example of this analysis, please find data at [10.6084/m9.figshare.28429574](https://figshare.com/account/articles/28429574)
 
 ### With `make_microreact` target
 
@@ -39,6 +45,10 @@ In addition to the above, for each strain:
 - Use [transphylo](https://github.com/xavierdidelot/TransPhylo) to infer transmission events on these timed trees.
 
 This requires a `transmission_metadata.csv` file containing sampling times, see the PopPIPE configuration section below for a description of its format.
+
+For an example of this analysis, please find data at [10.6084/m9.figshare.28495571](https://figshare.com/account/articles/28495571).
+Input files and config file are in `input/` and the pipeline output after running `snakemake transmission --cores 4` is
+in `output/`.
 
 ## Installation
 
