@@ -1,8 +1,0 @@
-name: gubbins
-channels:
-  - conda-forge
-  - bioconda
-  - defaults
-  - r
-dependencies:
-  - gubbins >= 3.1.0

@@ -4,9 +4,13 @@
 
 Downstream analysis of [PopPUNK](https://www.poppunk.net/) results. Produces subclusters and visualisations of all strains.
 
-Further documentation can be found in the [PopPUNK docs](https://poppunk.readthedocs.io/en/latest/subclustering.html).
+## Use cases
 
-## Pipeline description
+### Subcluster analysis (default target)
+
+To run the default pipeline for subcluster analysis run:
+
+`snakemake --cores 4`
 
 The default pipeline consists of the following steps:
 - Split files into their [PopPUNK](https://www.poppunk.net/) strains.
@@ -16,11 +20,13 @@ The default pipeline consists of the following steps:
 - Use [IQ-TREE](http://www.iqtree.org/) to generate an ML phylogeny using this alignment, and the NJ tree as a starting point.
 - Use [fastbaps](https://github.com/gtonkinhill/fastbaps) to generate subclusters which are partitions of the phylogeny.
 
-Default (subclusters) `snakemake`:
+<img src='full_dag.png' height="550" />
 
-<img src='ska2_dag.png' height="550" />
+For an example of this analysis, please find data at [10.6084/m9.figshare.28429574](https://figshare.com/account/articles/28429574)
 
 ### With `make_microreact` target
+
+`snakemake make_microreact`
 
 In addition to the above:
 - Create an overall visualisation with both core and accessory distances, as in PopPUNK. The final tree consists of refining the NJ tree by grafting the maximum likelihood trees for subclusters to their matching nodes.
@@ -28,9 +34,9 @@ In addition to the above:
 
 `snakemake make_microreact`:
 
-<img src='microreact_dag.png' height="550" />
-
 ### With `transmission` target
+
+`snakemake transmission --cores 4`
 
 In addition to the above, for each strain:
 - Use [SKA2](https://github.com/bacpop/ska.rust) map to generate within-strain alignments in reference-based mode.
@@ -40,33 +46,20 @@ In addition to the above, for each strain:
 
 This requires a `transmission_metadata.csv` file containing sampling times, see the PopPIPE configuration section below for a description of its format.
 
-`snakemake transmission`:
-
-<img src='transmission_dag.png' height="550" />
+For an example of this analysis, please find data at [10.6084/m9.figshare.28495571](https://figshare.com/account/articles/28495571).
+Input files and config file are in `input/` and the pipeline output after running `snakemake transmission --cores 4` is
+in `output/`.
 
 ## Installation
 
-The supported method is to use conda, which is most easily accessed by first
-installing [miniconda](https://conda.io/miniconda.html). PopPIPE simply depends
-upon snakemake and pandas:
+The supported method is to use mamba, which is most easily accessed by first
+installing [micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html). Install with:
 ```
-conda install snakemake pandas
+mamba create -n poppipe --file=environment.yml
+mamba activate poppipe
 ```
-
-Other dependencies will be automatically installed by conda the first time
-you run the pipeline. You can also install them yourself and omit the `--use-conda`
-directive to snakemake:
-```
-conda env create -n poppipe --file=environment.yml
-```
-
-If the package cannot be found you will need to add the necessary channels:
-```
-conda config --add channels r
-conda config --add channels defaults
-conda config --add channels bioconda
-conda config --add channels conda-forge
-```
+If you are using an ARM Mac, some packages may not be available yet. To use the intel
+packages prepend `CONDA_SUBDIR=osx-64` to the `mamba create` command.
 
 ### Running inside a container
 
@@ -86,7 +79,7 @@ Use `--singularity-args` if you need to bind directories.
 ## Usage
 
 1. Modify `config.yml` as appropriate.
-2. Run `snakemake --cores <n_cores> --use-conda`.
+2. Run `snakemake --cores <n_cores>`.
 
 In particular, check the three `poppunk_` arguments, which should be set to the
 full path of the `--r-files` argument, strain clusters .csv file and `.h5` database file,
@@ -94,7 +87,7 @@ from your PopPUNK run.
 
 On a cluster or the cloud, you can use snakemake's built-in `--cluster` argument:
 ```
-snakemake --cluster qsub -j 16 --use-conda
+snakemake --cluster qsub -j 16
 ```
 See the [snakemake docs](https://snakemake.readthedocs.io/en/stable/executing/cluster-cloud.html)
 for more information on your cluster/cloud provider.
@@ -104,7 +97,7 @@ The default target is the first in the Snakefile: `cluster_summary`. This
 produces subclusters but no visualisations. To continue the run forward from here
 use the `microreact` target:
 ```
-snakemake --use-conda make_microreact
+snakemake make_microreact
 ```
 
 This will create a phylogeny, embedding and format your strains and their subclusters
@@ -114,6 +107,17 @@ and saved in `output/microreact_url.txt`.
 
 **NB** From 2021-10-27 Microreact requires an API key for the final step to work. See the
 [microreact docs](https://docs.microreact.org/api/access-tokens) for instructions on how to generate one for your account.
+
+### Running transmission detection
+To run the transmission pipeline, make sure you have provided a transmission metadata CSV file
+in `config.yml` which lists the sampling dates. The run the transmission target:
+```
+snakemake transmission
+```
+
+## Usage example
+
+TODO
 
 ## Config file
 

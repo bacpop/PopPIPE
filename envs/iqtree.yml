@@ -1,7 +1,0 @@
-channels:
-  - bioconda
-  - conda-forge
-dependencies:
-  - iqtree =2.0.3
-  - python =3.7
-  - ete3 =3.1.2
