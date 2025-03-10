@@ -94,8 +94,6 @@ rule sketchlib_dists:
         dist_prefix = "output/strains/{strain}/dists"
     threads:
         4
-    conda:
-        config["poppipe_location"] + "/envs/sketch.yml"
     shell:
         "sketchlib query dist {params.db_prefix} {params.db_prefix} --subset {input.names} "
         "-o {params.dist_prefix} --cpus {threads} &> {log}"
@@ -109,8 +107,6 @@ rule generate_nj:
         start_tree="output/strains/{strain}/njtree.nwk"
     group:
         "quicktree"
-    conda:
-        config["poppipe_location"] + "/envs/nj.yml"
     script:
         config["poppipe_location"] + "/scripts/run_rapidnj.py"
 
@@ -127,8 +123,6 @@ rule ska_build:
         single_strand=config['ska']['single_strand']
     log:
         "logs/ska_build_{strain}.log"
-    conda:
-        config["poppipe_location"] + "/envs/ska.yml"
     script:
         config["poppipe_location"] + "/scripts/run_ska_build.py"
 
@@ -144,8 +138,6 @@ rule ska_align:
         "logs/ska_align_{strain}.log"
     params:
         prefix="output/strains/{strain}/align"
-    conda:
-        config["poppipe_location"] + "/envs/ska.yml"
     shell:
         "ska align -v --filter no-const --no-gap-only-sites {input.skf} > {output.alignment} 2> {log}"
 
@@ -162,8 +154,6 @@ rule ska_map:
         "logs/ska_map_{strain}.log"
     params:
         prefix="output/strains/{strain}/align"
-    conda:
-        config["poppipe_location"] + "/envs/ska.yml"
     shell:
         "ska map -v \"$(head -1 {input.reference_list} | cut -f 2)\" {input.skf} --ambig-mask > {output.alignment} 2> {log}"
 
@@ -185,8 +175,6 @@ rule iq_tree:
         model=config['iqtree']['model'],
         prefix="output/strains/{strain}/besttree.unrooted"
 
-    conda:
-        config["poppipe_location"] + "/envs/iqtree.yml"
     threads:
         4
     script:
@@ -209,8 +197,6 @@ rule gubbins:
         min_window=config['gubbins']['min_window_size'],
         max_window=config['gubbins']['max_window_size'],
         iterations=config['gubbins']['iterations'],
-    conda:
-        config["poppipe_location"] + "/envs/gubbins.yml"
     threads:
         2
     shell:
@@ -235,8 +221,6 @@ rule bactdating:
         script=config["poppipe_location"] + "/scripts/run_bactDating.R"
     log:
         "logs/bactdating_{strain}.log"
-    conda:
-        config["poppipe_location"] + "/envs/transphylo.yml"
     shell:
         "Rscript --vanilla {params.script} output/strains/{wildcards.strain}/gubbins {input.metadata} {output.sorted} {output.rds} > {log}"
 
@@ -271,8 +255,6 @@ rule transphylo:
         gubbins="output/strains/{strain}/gubbins"
     log:
         "logs/transphylo_{strain}.log"
-    conda:
-        config["poppipe_location"] + "/envs/transphylo.yml"
     shell:
         "Rscript --vanilla {params.script} --rds {input.rds} --sorted {input.sorted} --output {output} \
         --gubbins {params.gubbins} --wshape {params.w_shape} \
@@ -294,8 +276,6 @@ rule fastbaps:
         levels=config['fastbaps']['levels']
     log:
         "logs/fastbaps_{strain}.log"
-    conda:
-        config["poppipe_location"] + "/envs/fastbaps.yml"
     threads:
         4
     shell:
@@ -311,8 +291,6 @@ rule graft_tree:
         "output/full_tree.nwk"
     group:
         "viz"
-    conda:
-        config["poppipe_location"] + "/envs/nj.yml"
     script:
         config["poppipe_location"] + "/scripts/tree_graft.py"
 
@@ -336,8 +314,6 @@ rule generate_dot:
         maxIter = str(config['mandrake']['maxIter'])
     log:
         "logs/mandrake.log"
-    conda:
-        config["poppipe_location"] + "/envs/mandrake.yml"
     threads:
         64
     shell:
