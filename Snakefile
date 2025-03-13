@@ -317,10 +317,14 @@ rule generate_dot:
     threads:
         64
     shell:
-        "mkdir -p output/viz && \
+        branch(
+            len(samples) >= 100,
+            then="mkdir -p output/viz && \
         mandrake --sketches {input} --output output/viz/mandrake \
         --use-accessory --perplexity {params.perplexity} --kNN {params.knn} \
-        --maxIter {params.maxIter} --cpus {threads} --no-clustering &> {log}"
+        --maxIter {params.maxIter} --cpus {threads} --no-clustering &> {log}",
+            otherwise="touch {output.dot}"
+        )
 
 # use microreact api
 rule make_microreact:

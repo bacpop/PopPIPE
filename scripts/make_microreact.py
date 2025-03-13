@@ -45,13 +45,15 @@ with open(snakemake.params['example_file'], 'rb') as example_pickle:
 
 json_pickle["files"]["data-file-1"]["blob"] = csv_string
 json_pickle["files"]["tree-file-1"]["blob"] = tree_string
-json_pickle["files"]["network-file-1"] = {"id": "network-file-1",
-                                          "name": "network.dot",
-                                          "format": "text/vnd.graphviz",
-                                          "blob": dot_string}
-json_pickle["networks"]["network-1"] = {"title": "Network",
-                                        "file": "network-file-1",
-                                        "nodeField": "id"}
+if len(dot_string) > 0:
+    json_pickle["files"]["network-file-1"] = {"id": "network-file-1",
+                                            "name": "network.dot",
+                                            "format": "text/vnd.graphviz",
+                                            "blob": dot_string}
+    json_pickle["networks"]["network-1"] = {"title": "Network",
+                                            "file": "network-file-1",
+                                            "nodeField": "id"}
+
 json_pickle["meta"]["name"] = snakemake.params['microreact_name']
 json_pickle["meta"]["description"] = description_string
 json_pickle["meta"]["email"] = snakemake.params['microreact_email']

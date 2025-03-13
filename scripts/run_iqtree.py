@@ -11,7 +11,7 @@ def midpoint_root(infile, outfile):
     t.write(format=5, outfile=outfile) # format 5: internal and leaf branches + leaf names
 
 def iqtree_cmd(alignment, start_tree, threads, prefix, model, mode):
-    cmd = f"iqtree --quiet -st DNA -s {alignment} -t {start_tree} -T {threads} --prefix {prefix}"
+    cmd = f"iqtree --quiet -redo -st DNA -s {alignment} -t {start_tree} -T {threads} --prefix {prefix}"
     if mode == "full":
         cmd += f" -m {model}"
     elif mode == "fast":
