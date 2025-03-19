@@ -1,0 +1,11 @@
+import re
+import subprocess
+
+if snakemake.params["n_samples"] >= 100:
+    subprocess.run(f"mandrake --sketches {snakemake.input} --output output/viz/mandrake" + \
+               f" --use-accessory --perplexity {snakemake.params['perplexity']} --kNN {snakemake.params['knn']}" + \
+               f" --maxIter {snakemake.params['maxIter']} --cpus {snakemake.threads} --no-clustering" + \
+               f" 2> " + str(snakemake.log),
+               shell=True, check=True)
+else:
+    subprocess.run("touch " + snakemake.output['dot'], shell=True, check=True)
