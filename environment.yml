@@ -4,7 +4,7 @@ channels:
   - r
 dependencies:
   - pandas
-  - snakemake >=8.30
+  - snakemake >=7.0 # NB, snakemake 8 would be preferred, requires python 3.11 (clashes with gubbins)
   - python >=3.7
   - numpy >=1.18
   - iqtree >=2.0.3
@@ -16,7 +16,7 @@ dependencies:
   - r-base
   - r-fastbaps >=1.0.5
   - mandrake >=1.2.1
-  - gubbins >= 3.1.0
+  - gubbins >= 3.1.0 # Max python 3.10
   - r-transphylo
   - r-bactdating
   - r-ape

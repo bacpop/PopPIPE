@@ -309,6 +309,7 @@ rule generate_dot:
         "viz"
     params:
         db_prefix = db_prefix,
+        n_samples = len(samples),
         perplexity = str(config['mandrake']['perplexity']),
         knn = str(config['mandrake']['knn']),
         maxIter = str(config['mandrake']['maxIter'])
@@ -316,15 +317,8 @@ rule generate_dot:
         "logs/mandrake.log"
     threads:
         64
-    shell:
-        branch(
-            len(samples) >= 100,
-            then="mkdir -p output/viz && \
-        mandrake --sketches {input} --output output/viz/mandrake \
-        --use-accessory --perplexity {params.perplexity} --kNN {params.knn} \
-        --maxIter {params.maxIter} --cpus {threads} --no-clustering &> {log}",
-            otherwise="touch {output.dot}"
-        )
+    script:
+        config["poppipe_location"] + "/scripts/run_mandrake.py"
 
 # use microreact api
 rule make_microreact:
