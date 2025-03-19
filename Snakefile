@@ -298,13 +298,7 @@ rule generate_dot:
     input:
         config["poppunk_h5"]
     output:
-        dot="output/viz/mandrake.embedding.dot",
-        density="output/viz/mandrake.embedding_density.pdf",
-        html="output/viz/mandrake.embedding.html",
-        static="output/viz/mandrake.embedding_static.png",
-        txt="output/viz/mandrake.embedding.txt",
-        names="output/viz/mandrake.names.txt",
-        npz="output/viz/mandrake.npz"
+        dot="output/viz/mandrake.embedding.dot"
     group:
         "viz"
     params:
