@@ -6,6 +6,7 @@ dependencies:
   - pandas
   - snakemake >=7.0 # NB, snakemake 8 would be preferred, requires python 3.11 (clashes with gubbins)
   - python >=3.7
+  - pulp <2.8 # see https://github.com/snakemake/snakemake/issues/2607
   - numpy >=1.18
   - iqtree >=2.0.3
   - rapidnj >=v2.3.2
