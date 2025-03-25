@@ -8,5 +8,5 @@ if snakemake.params["n_samples"] >= 100:
                f" 2> " + str(snakemake.log),
                shell=True, check=True)
 else:
-    for ofile in snakemake.output.values():
+    for ofile in snakemake.output:
         subprocess.run(f"touch {ofile}", shell=True, check=True)
