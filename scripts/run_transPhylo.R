@@ -92,3 +92,11 @@ plotCTree(bestTree$ctree)
 dev.off()
 
 saveRDS(results, file = opt$output)
+
+# save ttree table
+ttree <- extractTTree(bestTree$ctree)
+transmissions <- data.frame(ttree$ttree)
+colnames(transmissions) <- c("Infection date", "Sample date", "Infection source")
+rownames(transmissions)[1:length(ttree$nam)] <- ttree$nam
+transmissions$`Infection source`[1:nrow(transmissions)-1] <- rownames(transmissions)[transmissions$`Infection source`]
+write.table(transmissions, paste(path_dir(opt$rds),"transmission_table.txt", sep = "/"), quote=F, sep="\t")
