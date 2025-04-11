@@ -42,5 +42,6 @@ bactdate_data <- bactdate(rooted, sorted_dates, minbralen = min(rooted$edge.leng
 
 print("Done bactDating")
 
-saveRDS(bactdate_data, file = args[4])
+write.tree(bactdate_data$tree, file = args[4])
+saveRDS(bactdate_data, file = args[5])
 

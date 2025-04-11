@@ -214,6 +214,7 @@ rule bactdating:
         metadata=config["transmission_metadata"]
     output:
         rds="output/strains/{strain}/bactdate_data.rds",
+        tree="output/strains/{strain}/bactdate_tree.nwk",
         sorted="output/strains/{strain}/sorted.rds"
     group:
         "outbreak"
@@ -222,7 +223,7 @@ rule bactdating:
     log:
         "logs/bactdating_{strain}.log"
     shell:
-        "Rscript --vanilla {params.script} output/strains/{wildcards.strain}/gubbins {input.metadata} {output.sorted} {output.rds} > {log}"
+        "Rscript --vanilla {params.script} output/strains/{wildcards.strain}/gubbins {input.metadata} {output.sorted} {output.tree} {output.rds} > {log}"
 
 # dummy target rule
 rule transmission:
