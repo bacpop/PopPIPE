@@ -4,6 +4,13 @@
 
 Downstream analysis of [PopPUNK](https://www.poppunk.net/) results. Produces subclusters and visualisations of all strains.
 
+## Paper
+
+McHugh, M. P., Horsfield, S. T., von Wachsmann, J., Toussaint, J., Pettigrew, K. A., Czarniak, E., Evans, T. J., Leanord, A., Tysall, L., Gillespie, S. H., Templeton, K. E., Holden, M. T. G., Croucher, N. J., & Lees, J. A. (2025).
+
+Integrated population clustering and genomic epidemiology with PopPIPE. Microbial Genomics, 11(4), 001404.
+https://www.microbiologyresearch.org/content/journal/mgen/10.1099/mgen.0.001404
+
 ## Use cases
 
 ### Subcluster analysis (default target)
