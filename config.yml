@@ -5,7 +5,7 @@ poppipe_location: .
 poppunk_rfile: rfiles.txt
 poppunk_clusters: database_clusters.csv
 poppunk_h5: database.h5
-transmission_metadata: transmission_metadata.csv
+transmission_metadata: transmission_metadata_renamed.csv
 
 # Minimum cluster size to subcluster
 min_cluster_size: 6
@@ -22,7 +22,7 @@ ska:
 iqtree:
   enabled: true
   mode: full
-  model: 012310+G+ASC # +ASC recommended. May replace 012310 with GTR for single strand data
+  model: 012310+G # +ASC recommended. May replace 012310 with GTR for single strand data
 
 # fastbaps options
 fastbaps:
@@ -37,10 +37,10 @@ mandrake:
 
 # Microreact title, and your contact details
 microreact:
-  name: Listeria PopPIPE
-  website: https://www.poppunk.net
+  name: SPARC PopPIPE
+  website: https://www.bacpop.org
   email: poppunk@poppunk.net
-  api_token: a1b2c3d4  ## see https://docs.microreact.org/api/access-tokens
+  api_token: eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..9Qij00Pptvon4hrn.qB9Fnwkx7ntexak0m0dDYSmrYBCtCPPYqFXOCwtXVLjCnVClVZzwfQ8H0V1B6YBX5pwdinfLwfllrOBGIeVk1E20eVDSrb-XfBsmDPMMa1cv0iYSmFwv1NbW2ecjQxc9zVkVNSyECL3rUkeI5ALs4w.68KLFfjT8WoEGzWn_5ugsA  ## see https://docs.microreact.org/api/access-tokens
 
 # gubbins options
 gubbins:
