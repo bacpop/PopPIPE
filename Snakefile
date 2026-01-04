@@ -189,7 +189,7 @@ rule gubbins:
     group:
         "gubbins"
     log:
-        "../../../logs/gubbins_{strain}.log"
+        "logs/gubbins_{strain}.log"
     params:
         prefix=config['gubbins']['prefix'],
         tree_builder=config['gubbins']['tree_builder'],
