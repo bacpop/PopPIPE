@@ -52,6 +52,7 @@ RUN echo ". $CONDA_DIR/etc/profile.d/mamba.sh" >> ~/.profile
 
 # make conda activate command available from /bin/bash --interative shells
 RUN conda init bash
+RUN mamba shell init
 
 # create a project directory inside user home
 # (this isn't used with a clone running snakemake)
