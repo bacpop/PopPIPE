@@ -64,6 +64,7 @@ WORKDIR $PROJECT_DIR
 ENV ENV_PREFIX $PROJECT_DIR/env
 RUN mamba env create -r $ENV_PREFIX --prefix $ENV_PREFIX --file /tmp/environment.yml && \
     mamba clean --all --yes
+ENV MAMBA_EXE /home/poppipe-usr/miniforge3/bin/mamba
 
 # use an entrypoint script to insure conda environment is properly activated at runtime
 USER root
