@@ -47,7 +47,8 @@ RUN wget -O ~/Miniforge3.sh "https://github.com/conda-forge/miniforge/releases/l
 ENV PATH=$CONDA_DIR/bin:$PATH
 
 # make conda activate command available from /bin/bash --login shells
-RUN echo ". $CONDA_DIR/etc/profile.d/mamba.sh" >> ~/.profile
+# DEPRECATED -- should be done by init below
+# RUN echo ". $CONDA_DIR/etc/profile.d/mamba.sh" >> ~/.profile
 
 # make conda activate command available from /bin/bash --interactive shells
 RUN mamba shell init
