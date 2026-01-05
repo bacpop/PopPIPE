@@ -36,8 +36,9 @@ RUN chown $UID:$GID /usr/local/bin/entrypoint.sh && \
 USER $USER
 
 # install miniforge
+# NB need to set homedir explicitly, or use `WORKDIR $HOME`
 ENV CONDA_DIR $HOME/miniforge3
-RUN wget -O Miniforge3.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" && \
+RUN wget -O ~/Miniforge3.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" && \
     chmod +x ~/Miniforge3.sh && \
     bash ~/Miniforge3.sh -b -p $CONDA_DIR && \
     rm ~/Miniforge3.sh
