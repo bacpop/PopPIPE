@@ -14,10 +14,10 @@ RUN apt-get update --fix-missing && \
 ARG username=poppipe-usr
 ARG uid=1000
 ARG gid=100
-ENV USER $username
-ENV UID $uid
-ENV GID $gid
-ENV HOME /home/$USER
+ENV USER=$username
+ENV UID=$uid
+ENV GID=$gid
+ENV HOME=/home/$USER
 
 RUN adduser --disabled-password \
     --gecos "Non-root user" \
@@ -35,36 +35,37 @@ RUN chown $UID:$GID /usr/local/bin/entrypoint.sh && \
 
 USER $USER
 
-# install miniconda
-ENV MINICONDA_VERSION latest
-ENV CONDA_DIR $HOME/miniconda3
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-$MINICONDA_VERSION-Linux-x86_64.sh -O ~/miniconda.sh && \
-    chmod +x ~/miniconda.sh && \
-    ~/miniconda.sh -b -p $CONDA_DIR && \
-    rm ~/miniconda.sh
+# install miniforge
+# NB need to set homedir explicitly, or use `WORKDIR $HOME`
+ENV CONDA_DIR=$HOME/miniforge3
+RUN wget -O ~/Miniforge3.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" && \
+    chmod +x ~/Miniforge3.sh && \
+    bash ~/Miniforge3.sh -b -p $CONDA_DIR && \
+    rm ~/Miniforge3.sh
 
 # make non-activate conda commands available
 ENV PATH=$CONDA_DIR/bin:$PATH
 
 # make conda activate command available from /bin/bash --login shells
-RUN echo ". $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.profile
+# DEPRECATED -- should be done by init below
+# RUN echo ". $CONDA_DIR/etc/profile.d/mamba.sh" >> ~/.profile
 
-# make conda activate command available from /bin/bash --interative shells
-RUN conda init bash
+# make mamba activate command available from /bin/bash --interactive shells
+RUN mamba shell init -s bash -r $CONDA_DIR
 
 # create a project directory inside user home
 # (this isn't used with a clone running snakemake)
-ENV PROJECT_DIR $HOME/app
+ENV PROJECT_DIR=$HOME/app
 RUN mkdir $PROJECT_DIR
 # copy the code in
 COPY . $PROJECT_DIR
 WORKDIR $PROJECT_DIR
 
 # build the conda environment
-ENV ENV_PREFIX $PROJECT_DIR/env
-RUN conda update --name base --channel defaults conda && \
-    conda env create --prefix $ENV_PREFIX --file /tmp/environment.yml && \
-    conda clean --all --yes
+ENV ENV_PREFIX=$PROJECT_DIR/env
+RUN mamba env create -r $ENV_PREFIX --prefix $ENV_PREFIX --file /tmp/environment.yml && \
+    mamba clean --all --yes
+ENV MAMBA_EXE=/home/poppipe-usr/miniforge3/bin/mamba
 
 # use an entrypoint script to insure conda environment is properly activated at runtime
 USER root
