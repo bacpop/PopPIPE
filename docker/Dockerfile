@@ -39,8 +39,7 @@ USER $USER
 ENV CONDA_DIR $HOME/miniforge3
 RUN wget -O Miniforge3.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" && \
     chmod +x ~/Miniforge3.sh && \
-    bash ~/Miniforge3.sh -b -p $CONDA_DIR \
-    ~/Miniforge3.sh -b -p $CONDA_DIR && \
+    bash ~/Miniforge3.sh -b -p $CONDA_DIR && \
     rm ~/Miniforge3.sh
 
 # make non-activate conda commands available
