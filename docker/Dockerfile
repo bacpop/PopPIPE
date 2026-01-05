@@ -35,19 +35,20 @@ RUN chown $UID:$GID /usr/local/bin/entrypoint.sh && \
 
 USER $USER
 
-# install miniconda
-ENV MINICONDA_VERSION latest
-ENV CONDA_DIR $HOME/miniconda3
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-$MINICONDA_VERSION-Linux-x86_64.sh -O ~/miniconda.sh && \
-    chmod +x ~/miniconda.sh && \
-    ~/miniconda.sh -b -p $CONDA_DIR && \
-    rm ~/miniconda.sh
+# install miniforge
+ENV CONDA_DIR $HOME/miniforge3
+RUN wget -O Miniforge3.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" && \
+    chmod +x ~/Miniforge3.sh && \
+    bash ~/Miniforge3.sh -b -p $CONDA_DIR \
+    ~/Miniforge3.sh -b -p $CONDA_DIR && \
+    rm ~/Miniforge3.sh
 
 # make non-activate conda commands available
 ENV PATH=$CONDA_DIR/bin:$PATH
 
 # make conda activate command available from /bin/bash --login shells
 RUN echo ". $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.profile
+RUN echo ". $CONDA_DIR/etc/profile.d/mamba.sh" >> ~/.profile
 
 # make conda activate command available from /bin/bash --interative shells
 RUN conda init bash
@@ -62,8 +63,7 @@ WORKDIR $PROJECT_DIR
 
 # build the conda environment
 ENV ENV_PREFIX $PROJECT_DIR/env
-RUN conda update --name base --channel defaults conda && \
-    conda env create --prefix $ENV_PREFIX --file /tmp/environment.yml && \
+RUN conda env create --prefix $ENV_PREFIX --file /tmp/environment.yml && \
     conda clean --all --yes
 
 # use an entrypoint script to insure conda environment is properly activated at runtime
