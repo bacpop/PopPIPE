@@ -189,7 +189,7 @@ rule gubbins:
     group:
         "gubbins"
     log:
-        "../../../logs/gubbins_{strain}.log"
+        "logs/gubbins_{strain}.log"
     params:
         prefix=config['gubbins']['prefix'],
         tree_builder=config['gubbins']['tree_builder'],
@@ -200,13 +200,14 @@ rule gubbins:
     threads:
         2
     shell:
-        "pushd output/strains/{wildcards.strain}/ && \
+        """
+        (cd output/strains/{wildcards.strain}/ && \
         run_gubbins.py map_variants.aln --prefix {params.prefix} \
         --starting-tree besttree.nwk --tree-builder {params.tree_builder} \
         --min-snps {params.min_snp} --min-window-size {params.min_window} \
         --max-window-size {params.max_window} --iterations {params.iterations} \
-        --threads {threads} > {log} \
-        && popd"
+        --threads {threads}) > {log} 2>&1
+        """
 
 rule bactdating:
     input:
