@@ -51,7 +51,7 @@ ENV PATH=$CONDA_DIR/bin:$PATH
 # RUN echo ". $CONDA_DIR/etc/profile.d/mamba.sh" >> ~/.profile
 
 # make mamba activate command available from /bin/bash --interactive shells
-RUN mamba init bash
+RUN mamba shell init -s bash -r $CONDA_DIR
 
 # create a project directory inside user home
 # (this isn't used with a clone running snakemake)
