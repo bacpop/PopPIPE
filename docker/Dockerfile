@@ -50,9 +50,9 @@ ENV PATH=$CONDA_DIR/bin:$PATH
 RUN echo ". $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.profile
 RUN echo ". $CONDA_DIR/etc/profile.d/mamba.sh" >> ~/.profile
 
-# make conda activate command available from /bin/bash --interative shells
-RUN conda init bash
+# make conda activate command available from /bin/bash --interactive shells
 RUN mamba shell init
+RUN conda shell init
 
 # create a project directory inside user home
 # (this isn't used with a clone running snakemake)
@@ -64,8 +64,8 @@ WORKDIR $PROJECT_DIR
 
 # build the conda environment
 ENV ENV_PREFIX $PROJECT_DIR/env
-RUN conda env create --prefix $ENV_PREFIX --file /tmp/environment.yml && \
-    conda clean --all --yes
+RUN mamba env create -r $ENV_PREFIX --prefix $ENV_PREFIX --file /tmp/environment.yml && \
+    mamba clean --all --yes
 
 # use an entrypoint script to insure conda environment is properly activated at runtime
 USER root
