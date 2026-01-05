@@ -14,10 +14,10 @@ RUN apt-get update --fix-missing && \
 ARG username=poppipe-usr
 ARG uid=1000
 ARG gid=100
-ENV USER $username
-ENV UID $uid
-ENV GID $gid
-ENV HOME /home/$USER
+ENV USER=$username
+ENV UID=$uid
+ENV GID=$gid
+ENV HOME=/home/$USER
 
 RUN adduser --disabled-password \
     --gecos "Non-root user" \
@@ -37,7 +37,7 @@ USER $USER
 
 # install miniforge
 # NB need to set homedir explicitly, or use `WORKDIR $HOME`
-ENV CONDA_DIR $HOME/miniforge3
+ENV CONDA_DIR=$HOME/miniforge3
 RUN wget -O ~/Miniforge3.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" && \
     chmod +x ~/Miniforge3.sh && \
     bash ~/Miniforge3.sh -b -p $CONDA_DIR && \
@@ -55,17 +55,17 @@ RUN mamba shell init -s bash -r $CONDA_DIR
 
 # create a project directory inside user home
 # (this isn't used with a clone running snakemake)
-ENV PROJECT_DIR $HOME/app
+ENV PROJECT_DIR=$HOME/app
 RUN mkdir $PROJECT_DIR
 # copy the code in
 COPY . $PROJECT_DIR
 WORKDIR $PROJECT_DIR
 
 # build the conda environment
-ENV ENV_PREFIX $PROJECT_DIR/env
+ENV ENV_PREFIX=$PROJECT_DIR/env
 RUN mamba env create -r $ENV_PREFIX --prefix $ENV_PREFIX --file /tmp/environment.yml && \
     mamba clean --all --yes
-ENV MAMBA_EXE /home/poppipe-usr/miniforge3/bin/mamba
+ENV MAMBA_EXE=/home/poppipe-usr/miniforge3/bin/mamba
 
 # use an entrypoint script to insure conda environment is properly activated at runtime
 USER root
