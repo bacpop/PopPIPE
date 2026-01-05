@@ -50,8 +50,8 @@ ENV PATH=$CONDA_DIR/bin:$PATH
 # DEPRECATED -- should be done by init below
 # RUN echo ". $CONDA_DIR/etc/profile.d/mamba.sh" >> ~/.profile
 
-# make conda activate command available from /bin/bash --interactive shells
-RUN mamba shell init
+# make mamba activate command available from /bin/bash --interactive shells
+RUN mamba init bash
 
 # create a project directory inside user home
 # (this isn't used with a clone running snakemake)
