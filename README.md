@@ -51,7 +51,20 @@ In addition to the above, for each strain:
 - Use [bactdating](https://github.com/xavierdidelot/BactDating) to make timed trees.
 - Use [transphylo](https://github.com/xavierdidelot/TransPhylo) to infer transmission events on these timed trees.
 
-This requires a `transmission_metadata.csv` file containing sampling times, see the PopPIPE configuration section below for a description of its format.
+This requires a `transmission_metadata.csv` file containing sampling times, this file should look like this:
+```
+Name,Date
+001334,2001
+279388,2001
+5Z52R,2007
+```
+Where the sample names match the PopPUNK analysis, followed by a date.
+
+Please note that bactDating parses the dates using:
+```r
+tryFormats = c("%Y-%m-%d", "%Y/%m/%d", "%Y")
+```
+So your dates should be in a compatible format, usually at the same resolution (e.g. all just years)
 
 For an example of this analysis, please find data at [10.6084/m9.figshare.28495571](https://dx.doi.org/10.6084/m9.figshare.28495571).
 Input files and config file are in `input/` and the pipeline output after running `snakemake transmission --cores 4` is
@@ -122,9 +135,7 @@ in `config.yml` which lists the sampling dates. The run the transmission target:
 snakemake transmission
 ```
 
-## Usage example
-
-TODO
+Ensure dates are formatted consistently (see above).
 
 ## Config file
 
