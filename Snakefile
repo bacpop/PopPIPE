@@ -137,9 +137,10 @@ rule ska_align:
     log:
         "logs/ska_align_{strain}.log"
     params:
-        prefix="output/strains/{strain}/align"
+        prefix="output/strains/{strain}/align",
+        min_freq=config['ska']['freq_filter']
     shell:
-        "ska align -v --filter no-const --no-gap-only-sites {input.skf} > {output.alignment} 2> {log}"
+        "ska align -v --min-freq {params.min_freq} --filter no-const --no-gap-only-sites {input.skf} > {output.alignment} 2> {log}"
 
 # ska for mapping (needed for gubbins)
 rule ska_map:
@@ -174,7 +175,6 @@ rule iq_tree:
         mode=config['iqtree']['mode'],
         model=config['iqtree']['model'],
         prefix="output/strains/{strain}/besttree.unrooted"
-
     threads:
         4
     script:

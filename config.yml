@@ -16,7 +16,7 @@ ska:
   fastq_cov: 4
   kmer: 31
   single_strand: false
-  freq_filter: 0.9
+  freq_filter: 0.9 # only used in ska align step
 
 # IQ-TREE options
 iqtree:
@@ -37,7 +37,7 @@ mandrake:
 
 # Microreact title, and your contact details
 microreact:
-  name: Listeria PopPIPE
+  name: PopPIPE run
   website: https://www.poppunk.net
   email: poppunk@poppunk.net
   api_token: a1b2c3d4  ## see https://docs.microreact.org/api/access-tokens
