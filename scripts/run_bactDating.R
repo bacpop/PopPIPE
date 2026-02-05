@@ -3,6 +3,7 @@
 library(BactDating)
 library(phytools)
 library(ape)
+library(lubridate)
 
 args <- commandArgs(trailingOnly=TRUE)
 
@@ -31,8 +32,10 @@ if (nrow(merged) != nrow(tips)) {
 # making leaves and dates be in the same order
 merged <- merged[match(tips$Name, merged$Name),]
 
-sorted_dates <- as.numeric(as.Date(as.character(merged$Date), tryFormats = c("%Y-%m-%d", "%Y/%m/%d", "%Y")))
-sorted_dates <- sorted_dates/365 # years
+# parse_date_time handles mixed formats automatically
+# decimal_date converts to accurate year format (e.g., 2023.45) accounting for leap years
+parsed_dates <- parse_date_time(as.character(merged$Date), orders = c("ymd", "ym", "y"))
+sorted_dates <- decimal_date(parsed_dates)
 saveRDS(sorted_dates, file = args[3])
 
 # does the actual bactdating: date the nodes of the tree
