@@ -70,6 +70,24 @@ For an example of this analysis, please find data at [10.6084/m9.figshare.284955
 Input files and config file are in `input/` and the pipeline output after running `snakemake transmission --cores 4` is
 in `output/`.
 
+### Customising dates
+
+You can edit `scripts/run_bactDating.R` to alter the date parsing. The default code runs:
+
+```r
+sorted_dates <- as.numeric(as.Date(as.character(merged$Date), tryFormats = c("%Y-%m-%d", "%Y/%m/%d", "%Y")))
+sorted_dates <- sorted_dates/365 # years
+```
+
+But this could be replaced with:
+```r
+library(lubridate)
+parsed_dates <- parse_date_time(as.character(merged$Date), orders = c("ymd", "ym", "y"))
+sorted_dates <- decimal_date(parsed_dates)
+```
+
+To be more flexible.
+
 ## Installation
 
 The supported method is to use mamba, which is most easily accessed by first
